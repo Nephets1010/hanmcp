@@ -12,6 +12,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
   This is the only gate that asks whether the command the READMEs tell a stranger to run actually works. The others compare a document against a file, and both sides can agree with each other while the tool is unusable: `npx hanmcp` sat in `README.md` as the first line of Quick start while the package was unpublished, and every existing check passed. It also catches a `files` field that omits something the `bin` entry point imports — `npm pack` ships the entry point regardless, so the tarball looks complete and dies on the first `import`. It runs on all three CI platforms because npm builds the `bin` shim differently on each.
 
+  It found the bug below before the release went out, on the first platform it was run on that the bug applies to.
+
+### Fixed
+
+- **The CLI did nothing, silently, when reached through a symlinked path.** `src/cli.js` decided whether it was the process entry point by comparing `import.meta.url` with `pathToFileURL(path.resolve(process.argv[1])).href`. Node resolves the main module through symlinks, so `import.meta.url` is a real path while `argv[1]` is whatever the caller typed; when the two differ the comparison says "this file was imported", `main()` is never called, and the process exits 0 having printed nothing and done nothing. Reaching the CLI through a symlinked component is not exotic — macOS resolves `/tmp` and `/var`, symlinked home directories are common, and package managers create these links routinely. Both sides are now resolved through `realpathSync`, and `test/cli.test.js` spawns the CLI through a real symlink so the comparison cannot quietly regress.
+
 ## [0.1.0]
 
 First release.

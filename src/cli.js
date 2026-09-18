@@ -9,8 +9,9 @@
  *   hanmcp help | version
  */
 
+import { realpathSync } from 'node:fs';
 import path from 'node:path';
-import { pathToFileURL } from 'node:url';
+import { fileURLToPath } from 'node:url';
 
 import { buildProject, formatManifest, GENERATOR_VERSION } from './build.js';
 import { createServer } from './mcp-runtime.js';
@@ -229,8 +230,30 @@ export async function main(argv) {
   return runBuild(flags, url);
 }
 
-const isDirectRun =
-  process.argv[1] !== undefined && import.meta.url === pathToFileURL(path.resolve(process.argv[1])).href;
+/**
+ * Is this file the process entry point, or was it imported?
+ *
+ * Node resolves the main module through symlinks, so `import.meta.url` is a
+ * real path while `process.argv[1]` is whatever the caller typed. Comparing them
+ * directly fails whenever the CLI is reached through a symlinked component —
+ * which is not exotic: macOS resolves `/tmp` and `/var`, a symlinked home
+ * directory is common, and package managers create these links routinely. When
+ * the comparison fails the CLI is never invoked at all, so it prints nothing
+ * and exits 0 — a silent no-op, which is the worst way to be wrong.
+ *
+ * Resolving both sides through `realpathSync` makes the comparison mean what it
+ * was meant to mean.
+ */
+const isDirectRun = (() => {
+  if (process.argv[1] === undefined) {
+    return false;
+  }
+  try {
+    return realpathSync(process.argv[1]) === fileURLToPath(import.meta.url);
+  } catch {
+    return false;
+  }
+})();
 
 if (isDirectRun) {
   main(process.argv.slice(2))

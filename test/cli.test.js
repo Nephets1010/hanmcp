@@ -10,7 +10,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdtempSync, existsSync, rmSync } from 'node:fs';
+import { mkdtempSync, existsSync, rmSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -22,11 +22,12 @@ const CLI = fileURLToPath(new URL('../src/cli.js', import.meta.url));
 
 /**
  * @param {string[]} args
+ * @param {string} [cliPath] Where to reach the CLI from; defaults to its real path.
  * @returns {Promise<{code: number|null, stdout: string, stderr: string}>}
  */
-function runCli(args) {
+function runCli(args, cliPath = CLI) {
   return new Promise((resolve, reject) => {
-    const child = spawn(process.execPath, [CLI, ...args], { stdio: ['ignore', 'pipe', 'pipe'] });
+    const child = spawn(process.execPath, [cliPath, ...args], { stdio: ['ignore', 'pipe', 'pipe'] });
     let stdout = '';
     let stderr = '';
     child.stdout.on('data', (chunk) => {
@@ -82,6 +83,26 @@ test('no arguments prints help and exits non-zero', async () => {
   const { code, stdout } = await runCli([]);
   assert.equal(code, 1);
   assert.ok(stdout.includes('usage'));
+});
+
+test('runs when reached through a symlinked path', async () => {
+  // Node resolves the main module through symlinks, so `import.meta.url` is a
+  // real path while `process.argv[1]` is whatever the caller typed. Comparing
+  // the two directly fails whenever the CLI is reached through a symlinked
+  // component, and that is not exotic: macOS resolves `/tmp` and `/var`, a
+  // symlinked home directory is common, package managers create these links.
+  // It fails silently, too — the entry point is judged to be an import, so
+  // `main()` never runs and the process prints nothing and exits 0.
+  const scratch = mkdtempSync(path.join(tmpdir(), 'hanmcp-symlink-'));
+  const link = path.join(scratch, 'linked-src');
+  try {
+    symlinkSync(path.dirname(CLI), link, process.platform === 'win32' ? 'junction' : 'dir');
+    const { code, stdout } = await runCli(['--version'], path.join(link, 'cli.js'));
+    assert.equal(code, 0);
+    assert.match(stdout.trim(), /^\d+\.\d+\.\d+$/, 'the CLI printed nothing: it decided it was being imported');
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
+  }
 });
 
 test('a malformed url fails with a readable message, not a stack trace', async () => {
