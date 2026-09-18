@@ -1,19 +1,25 @@
 #!/usr/bin/env node
 /**
- * Keeps the README honest about the numbers it prints.
+ * Keeps the documentation honest about the tool.
  *
- * The README opens with two blocks of output and says, in as many words, that
- * they are real and not mock-ups. That claim is only worth anything while the
- * numbers in it still match what the tool actually prints — and they rot
- * silently: every edit to `site/` moves the term count, the index size and the
- * BM25 score. This was caught by hand once (the README had drifted to a stale
- * port, 1336 terms and a score from two renames ago). A claim nobody checks is
- * a claim that eventually becomes false.
+ * Two things are checked, both because they rot silently:
  *
- * So this script rebuilds the site, asks the same question the README asks,
- * and compares the result against every number the README commits to. These
- * are all deterministic — same content in, same numbers out — which is exactly
- * why they can be asserted.
+ * 1. THE NUMBERS. The README opens with two blocks of output and says, in as
+ *    many words, that they are real and not mock-ups. That claim is only worth
+ *    anything while the numbers still match what the tool prints — and they
+ *    move every time `site/` is edited, because the term count, the index size
+ *    and the BM25 score are all functions of the content. This was caught by
+ *    hand once, drifting behind a stale port and two renames. A claim nobody
+ *    checks is a claim that eventually becomes false.
+ *
+ * 2. THE FLAGS. Every flag the parser accepts has to appear in four places:
+ *    `--help`, both READMEs, and the CLI reference page on the docs site.
+ *    `--timeout` was accepted by the parser and documented in none of them, so
+ *    the only way to learn it existed was to read the source — and it turned
+ *    out nothing downstream used it either.
+ *
+ * Both sets of facts are deterministic — same content in, same numbers and the
+ * same flag list out — which is exactly why they can be asserted.
  *
  * Deliberately not checked: the `done in 0.8s` line. It is wall-clock time and
  * moves on every machine; the README's claim is "fast", not a specific
@@ -75,7 +81,69 @@ function statLine(text, name) {
   return match ? match[1] : null;
 }
 
+/** `--help` and `--version` are commands, not configuration; the reference
+ * tables list the things you set. */
+const NON_CONFIGURATION_FLAGS = new Set(['--help', '--version']);
+
+/**
+ * Reads the flag list out of the parser rather than out of a document, so that
+ * the code stays the source of truth. `VALUE_FLAGS` is the explicit
+ * declaration; boolean flags are found where they are read.
+ * @returns {string[]}
+ */
+function acceptedFlags() {
+  const source = readFileSync(path.join(ROOT, 'src', 'cli.js'), 'utf8');
+
+  const declared = /VALUE_FLAGS\s*=\s*new Set\(\[([^\]]*)\]\)/.exec(source);
+  if (!declared) {
+    fail('could not find VALUE_FLAGS in src/cli.js — did the parser change shape?');
+    return [];
+  }
+
+  const valueFlags = [...declared[1].matchAll(/'(--[a-z-]+)'/g)].map((m) => m[1]);
+  const booleanFlags = [...source.matchAll(/flags\['(--[a-z-]+)'\]\s*===\s*true/g)].map((m) => m[1]);
+
+  return [...new Set([...valueFlags, ...booleanFlags])]
+    .filter((flag) => !NON_CONFIGURATION_FLAGS.has(flag))
+    .sort();
+}
+
+/**
+ * Adding a flag to the parser without adding it to the four places a reader
+ * looks is the exact mistake this catches — it is how `--timeout` stayed
+ * invisible while being accepted on the command line.
+ */
+function checkFlagsAreDocumented() {
+  const flags = acceptedFlags();
+  if (flags.length === 0) {
+    return;
+  }
+
+  const source = readFileSync(path.join(ROOT, 'src', 'cli.js'), 'utf8');
+  const help = /const HELP = `([\s\S]*?)`;/.exec(source);
+  if (!help) {
+    fail('could not find the HELP text in src/cli.js');
+  } else {
+    for (const flag of flags) {
+      if (!help[1].includes(flag)) {
+        fail(`--help does not list ${flag}`);
+      }
+    }
+  }
+
+  for (const name of ['README.md', 'README.zh-CN.md', 'site/docs/guide/cli.html']) {
+    const text = readFileSync(path.join(ROOT, name), 'utf8');
+    for (const flag of flags) {
+      if (!text.includes(flag)) {
+        fail(`${name} does not document ${flag}`);
+      }
+    }
+  }
+}
+
 async function main() {
+  checkFlagsAreDocumented();
+
   const out = mkdtempSync(path.join(tmpdir(), 'hanmcp-readme-'));
   const site = await startSiteServer({ port: PORT });
 
@@ -176,20 +244,22 @@ async function main() {
   }
 
   if (problems.length > 0) {
-    process.stderr.write('the documented demo output no longer matches reality:\n');
+    process.stderr.write('the documentation no longer matches the tool:\n');
     for (const problem of problems) {
       process.stderr.write(`  - ${problem}\n`);
     }
     process.stderr.write(
-      '\nRe-run `npm run demo` and update the numbers in README.md, README.zh-CN.md and docs/DEMO.md.\n',
+      '\nNumbers: re-run `npm run demo` and take the values from README.md, README.zh-CN.md and docs/DEMO.md.\n' +
+        'Flags: add the flag to `--help` and to every reference table.\n',
     );
     process.exitCode = 1;
     return;
   }
 
   process.stdout.write(
-    `readme demo ok: ${actual.pages} pages, ${actual.chunks} passages, ${actual.terms} terms, ` +
-      `index ${actual.index}, score ${actual.score} — all match the documents\n`,
+    `docs ok: ${acceptedFlags().length} flags documented everywhere; ` +
+      `${actual.pages} pages, ${actual.chunks} passages, ${actual.terms} terms, ` +
+      `index ${actual.index}, score ${actual.score} — all match\n`,
   );
 }
 

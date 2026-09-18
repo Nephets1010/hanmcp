@@ -100,7 +100,7 @@ Page files are written as they are crawled; `manifest.json` last. An interrupted
 - **No incremental re-crawl.** Full rebuild every time. The artifacts are designed to be diffed instead.
 - **No vector search.** BM25 only: no model download, no embedding API, works offline, and explainable scores.
 - **No hosted component.** Not now, not later.
-- **No config file.** Flags only. A config file is a schema to version and migrate; there are eight flags.
+- **No config file.** Flags only. A config file is a schema to version and migrate; there are nine flags.
 
 ## Testing strategy
 

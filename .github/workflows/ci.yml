@@ -60,11 +60,13 @@ jobs:
           DEMO_PORT: '0'
         run: node demo/run-demo.js
 
-      # The README opens with two blocks of output and says they are real. The
-      # numbers in them move whenever site/ changes, so this is the step that
-      # stops the README from quietly becoming a lie.
-      - name: Documented demo output still matches
-        run: node scripts/verify-readme-demo.js
+      # The README opens with two blocks of output and says they are real, and
+      # every flag the parser accepts has to be documented in four places. Both
+      # drift silently: the numbers move whenever site/ changes, the flags move
+      # whenever the parser does. This is the step that stops the documentation
+      # from quietly becoming a lie.
+      - name: Documentation still matches the tool
+        run: node scripts/verify-docs.js
 
   portable-bundle:
     name: generated bundle runs with no repository present

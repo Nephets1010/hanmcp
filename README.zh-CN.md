@@ -119,6 +119,7 @@ hanmcp help | version
 | `--max-depth <n>` | `2` | 从入口 URL 起算的链接深度 |
 | `--name <name>` | 站点标题 | 服务器名称 |
 | `--delay <ms>` | `120` | 请求间隔 |
+| `--timeout <ms>` | `15000` | 单个请求超时时间 |
 | `--no-robots` | 关闭 | 跳过 `robots.txt` 检查 |
 | `--force` | 关闭 | 即使 `--out` 不是 `hanmcp` 创建的也覆盖 |
 | `--quiet` | 关闭 | 只打印最终汇总 |

@@ -1,5 +1,10 @@
 # hanmcp
 
+[![ci](https://github.com/Nephets1010/hanmcp/actions/workflows/ci.yml/badge.svg)](https://github.com/Nephets1010/hanmcp/actions/workflows/ci.yml)
+[![license](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![node](https://img.shields.io/badge/node-%3E%3D20-brightgreen.svg)](package.json)
+[![dependencies](https://img.shields.io/badge/runtime%20dependencies-0-brightgreen.svg)](package.json)
+
 > Turn any documentation site into a working MCP server, in one command. Zero dependencies, no API keys, no embeddings, no cloud.
 
 Most documentation is invisible to AI agents. `hanmcp` crawls a docs site, converts it to clean markdown, builds a dependency-free search index, and emits a **standalone MCP server** plus `llms.txt` — so Claude, Cursor, or any MCP client can read and search those docs locally.
@@ -119,6 +124,7 @@ hanmcp help | version
 | `--max-depth <n>` | `2` | Link depth from the entry URL |
 | `--name <name>` | site title | Server name |
 | `--delay <ms>` | `120` | Pause between requests |
+| `--timeout <ms>` | `15000` | Give up on a single request after this long |
 | `--no-robots` | off | Skip the `robots.txt` check |
 | `--force` | off | Overwrite `--out` even if `hanmcp` did not create it |
 | `--quiet` | off | Only print the final summary |
@@ -144,8 +150,8 @@ Node.js 20 or newer. Nothing else — `hanmcp` has zero runtime dependencies, an
 ## Development
 
 ```bash
-npm run check   # syntax gate + full test suite
-npm test        # tests only (~104 tests, no network required)
+npm run check   # syntax gate + full test suite + documented-numbers check
+npm test        # the test suite only
 npm run demo    # crawl hanmcp's own docs end to end
 ```
 

@@ -22,8 +22,8 @@
     "test": "node --test",
     "syntax": "node scripts/syntax-check.js",
     "demo": "node demo/run-demo.js",
-    "verify:readme": "node scripts/verify-readme-demo.js",
-    "check": "npm run syntax && npm test && npm run verify:readme"
+    "verify:docs": "node scripts/verify-docs.js",
+    "check": "npm run syntax && npm test && npm run verify:docs"
   },
   "keywords": [
     "mcp",
