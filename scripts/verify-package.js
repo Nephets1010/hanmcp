@@ -304,10 +304,11 @@ async function main() {
       check(`the tarball does not carry ${dir}/`, !existsSync(path.join(shipped, dir)));
     }
 
-    // The `bin` field is how `npx hanmcp` finds the entry point at all.
+    // The `bin` field is how `npx hanmcp` finds the entry point at all, and it
+    // has to be keyed by the package name — npm does not fall back.
     const binTarget = shippedPkg.bin?.[pkg.name];
     if (!binTarget) {
-      check('package.json declares a bin entry', false, JSON.stringify(shippedPkg.bin ?? null));
+      check(`package.json declares a bin entry for "${pkg.name}"`, false, JSON.stringify(shippedPkg.bin ?? null));
     } else {
       const binPath = path.resolve(shipped, binTarget);
       const binSource = existsSync(binPath) ? await readFile(binPath, 'utf8') : null;
