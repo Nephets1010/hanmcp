@@ -18,11 +18,18 @@
  *    the only way to learn it existed was to read the source — and it turned
  *    out nothing downstream used it either.
  *
- * Both sets of facts are deterministic — same content in, same numbers and the
- * same flag list out — which is exactly why they can be asserted.
+ * 3. THE QUOTED TAPE. docs/DEMO.md reproduces docs/demo.tape in full. A quoted
+ *    copy of a file is a second source of truth, and this repository has been
+ *    bitten repeatedly by documents describing a script the script no longer
+ *    is — a changelog crediting the wrong demo site, a storyboard telling the
+ *    reader to run a script that had been renamed, a tape whose hold was four
+ *    times longer than the output it was holding on.
  *
- * Deliberately not checked: the `done in 0.8s` line. It is wall-clock time and
- * moves on every machine; the README's claim is "fast", not a specific
+ * All three sets of facts are deterministic — same content in, same numbers,
+ * same flag list, same bytes — which is exactly why they can be asserted.
+ *
+ * Deliberately not checked: the `done in ...` line. It is wall-clock time and
+ * moves on every machine; the READMEs' claim is "fast", not a specific
  * duration. Asserting it would make the gate flaky for no gain.
  */
 
@@ -141,8 +148,37 @@ function checkFlagsAreDocumented() {
   }
 }
 
+/**
+ * The VHS tape is quoted in full inside docs/DEMO.md so a reader can see what
+ * the recording does without opening a second file. That makes it a copy, and
+ * a copy of a file drifts from the file. Compare them.
+ */
+function checkTapeMatches() {
+  const demo = readFileSync(path.join(ROOT, 'docs', 'DEMO.md'), 'utf8');
+  const quoted = /```tape\n([\s\S]*?)```/.exec(demo);
+  if (!quoted) {
+    fail('docs/DEMO.md: could not find the ```tape block');
+    return;
+  }
+
+  // Trailing whitespace and the final newline are not the point of the
+  // comparison, so they are normalised away rather than reported as drift.
+  const normalise = (text) =>
+    text
+      .split('\n')
+      .map((line) => line.trimEnd())
+      .join('\n')
+      .trim();
+
+  const real = readFileSync(path.join(ROOT, 'docs', 'demo.tape'), 'utf8');
+  if (normalise(quoted[1]) !== normalise(real)) {
+    fail('docs/DEMO.md: the quoted VHS tape no longer matches docs/demo.tape');
+  }
+}
+
 async function main() {
   checkFlagsAreDocumented();
+  checkTapeMatches();
 
   const out = mkdtempSync(path.join(tmpdir(), 'hanmcp-readme-'));
   const site = await startSiteServer({ port: PORT });
@@ -250,14 +286,15 @@ async function main() {
     }
     process.stderr.write(
       '\nNumbers: re-run `npm run demo` and take the values from README.md, README.zh-CN.md and docs/DEMO.md.\n' +
-        'Flags: add the flag to `--help` and to every reference table.\n',
+        'Flags: add the flag to `--help` and to every reference table.\n' +
+        'Tape: docs/DEMO.md quotes docs/demo.tape; change both or neither.\n',
     );
     process.exitCode = 1;
     return;
   }
 
   process.stdout.write(
-    `docs ok: ${acceptedFlags().length} flags documented everywhere; ` +
+    `docs ok: ${acceptedFlags().length} flags documented everywhere; tape matches docs/demo.tape; ` +
       `${actual.pages} pages, ${actual.chunks} passages, ${actual.terms} terms, ` +
       `index ${actual.index}, score ${actual.score} — all match\n`,
   );

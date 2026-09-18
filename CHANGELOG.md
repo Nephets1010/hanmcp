@@ -25,10 +25,11 @@ First release.
 
 ### Fixed
 
-Both defects were found before the first release, so they are folded into this version rather than left to a later one.
+These were all found before the first release, so they are folded into this version rather than left to a later one.
 
 - `--timeout <ms>` was accepted by the argument parser but never passed down to the crawler, so it silently did nothing and every request kept the 15-second default — a user raising it for a slow host got no effect and no warning. It now reaches the crawler, appears in `--help` and on the CLI reference page, and is covered by tests at both the "help lists it" and "it actually changes behaviour" levels.
 - The documented demo output in `README.md`, `README.zh-CN.md` and `docs/DEMO.md` had drifted (stale port, stale term count, stale BM25 score) and was a splice of two different sources. It is now the real output of `npx hanmcp`, and `npm run verify:docs` fails the build if any of those numbers stop matching reality.
+- The demo was documented as paced for recording, shot by shot, with holds on the Chinese answer and the closing line — and it was not. The whole run took 7 seconds and the answer, the part the demo exists to show, appeared and vanished in the last 0.4. Those holds now exist behind a single `--pace` flag: `npm run demo` takes about 27 seconds with every shot held long enough to read, and the unpaced form CI runs dropped to under two seconds. `docs/DEMO.md` quotes `docs/demo.tape` in full, and `npm run verify:docs` fails if the copy and the file disagree.
 
 ### Known limitations
 

@@ -21,7 +21,7 @@
   "scripts": {
     "test": "node --test",
     "syntax": "node scripts/syntax-check.js",
-    "demo": "node demo/run-demo.js",
+    "demo": "node demo/run-demo.js --pace",
     "verify:docs": "node scripts/verify-docs.js",
     "check": "npm run syntax && npm test && npm run verify:docs"
   },

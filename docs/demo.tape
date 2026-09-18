@@ -34,12 +34,14 @@ Enter
 Sleep 300ms
 Show
 
-# Shot 1 — the command. `npm run demo` is the reproducible entry point. Swap in
-# the literal `npx hanmcp <url>` form only if recording against a real site.
+# Shot 1 — the command. `npm run demo` is the paced form, which is what makes
+# shots 2-6 land; the bare `node demo/run-demo.js` prints the same output with
+# no holds and records badly.
 Type "npm run demo"
 Sleep 400ms
 Enter
 
-# Shots 2-6 — the crawl, the summary, the Chinese query, the client handshake
-# and the closer are all paced by run-demo.js. Let it play out.
-Sleep 34s
+# Shots 2-6 are paced by run-demo.js and take about 27s. Leave a couple of
+# seconds of margin: if this is short the GIF loses the closing hold, and a
+# static extra frame at the end costs almost nothing.
+Sleep 29s

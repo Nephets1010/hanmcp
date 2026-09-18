@@ -25,9 +25,10 @@ Bug fixes get a test that reproduces the bug. New features get tests for the hap
 Run the suite:
 
 ```bash
-npm test           # ~104 tests, no network required
-npm run demo       # crawl hanmcp's own docs end to end
-npm run check      # syntax gate + tests; this is what CI runs
+npm test                 # the test suite, no network required
+npm run demo             # crawl hanmcp's own docs end to end, paced for recording
+node demo/run-demo.js    # the same run without the pacing holds
+npm run check            # syntax gate + tests + documentation check; this is what CI runs
 ```
 
 The suite never touches the public internet. It serves a frozen fixture site on `localhost` (`demo/fixture/`) and crawls that, so tests are fast and deterministic. The demo crawls the real docs in `site/` instead — keep the two apart and a documentation edit will never break a test.

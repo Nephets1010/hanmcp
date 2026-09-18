@@ -23,7 +23,7 @@ hanmcp 0.1.0  documentation -> MCP
   [ 6]  CJK support · hanmcp Docs
   skip  robots.txt disallows /docs/private/benchmarks.html
 
-  done in 0.8s
+  done in 1.0s
   pages   6
   chunks  37
   terms   1,346
@@ -145,9 +145,10 @@ Node.js 20 或更高版本，没有其他要求——`hanmcp` 没有任何运行
 ## 开发
 
 ```bash
-npm run check   # 语法门禁 + 完整测试
-npm test        # 只跑测试（约 104 个用例，不需要联网）
-npm run demo    # 针对 hanmcp 自己的文档站跑完整链路
+npm run check            # 语法门禁 + 完整测试 + 文档一致性检查
+npm test                 # 只跑测试，不需要联网
+npm run demo             # 针对 hanmcp 自己的文档站跑完整链路，带录屏停顿
+node demo/run-demo.js    # 同样内容但不停顿，约 2 秒（27 秒的是上面那条）
 ```
 
 测试套件不需要联网：它会在 localhost 起一个夹具文档站然后抓取它。演示抓的是 `site/` 下的真实文档——两者刻意分开，这样改文档永远不会弄挂测试。

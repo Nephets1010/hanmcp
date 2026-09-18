@@ -28,7 +28,7 @@ hanmcp 0.1.0  documentation -> MCP
   [ 6]  CJK support · hanmcp Docs
   skip  robots.txt disallows /docs/private/benchmarks.html
 
-  done in 0.8s
+  done in 1.0s
   pages   6
   chunks  37
   terms   1,346
@@ -150,9 +150,10 @@ Node.js 20 or newer. Nothing else — `hanmcp` has zero runtime dependencies, an
 ## Development
 
 ```bash
-npm run check   # syntax gate + full test suite + documented-numbers check
-npm test        # the test suite only
-npm run demo    # crawl hanmcp's own docs end to end
+npm run check            # syntax gate + full test suite + documentation check
+npm test                 # the test suite only
+npm run demo             # crawl hanmcp's own docs end to end, paced for recording
+node demo/run-demo.js    # the same run without the holds, about 2s instead of 27
 ```
 
 The test suite needs no network access: it serves a fixture documentation site on localhost and crawls that. The demo crawls the real docs in `site/` — the two are kept separate so editing the documentation never breaks a test.

@@ -7,6 +7,11 @@
  * recording reproducible — but the content is the project's real documentation,
  * not placeholder text.
  *
+ * `npm run demo` passes `--pace`, which inserts the holds the storyboard in
+ * docs/DEMO.md asks for. Without that flag the same output prints as fast as
+ * the machine allows, which is the form CI runs — the holds exist to make a
+ * recording readable, and nobody is watching CI.
+ *
  * To record against a deployed domain instead, set DEMO_URL:
  *
  *   DEMO_URL=https://hanmcp.dev/docs/ npm run demo
@@ -37,6 +42,17 @@ const QUERY = '索引内存占用怎么估算';
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const write = (text = '') => process.stdout.write(`${text}\n`);
+
+/**
+ * Whether to insert the storyboard's holds.
+ *
+ * Every pause in this file goes through `hold` below, so there is one switch
+ * for the pacing rather than a `sleep` in every section that nobody remembers
+ * to tune. `npm run demo` passes the flag; CI calls this script directly and
+ * gets the unpaced run.
+ */
+const PACED = process.argv.includes('--pace');
+const hold = (ms) => (PACED ? sleep(ms) : Promise.resolve());
 
 /**
  * The demo binds a fixed port by default. A random port would make every take
@@ -76,14 +92,14 @@ async function main() {
   write(`hanmcp ${GENERATOR_VERSION}`);
   write('a documentation site becomes an MCP server, in one command');
   write('');
-  await sleep(500);
+  await hold(600);
 
   const site = externalUrl ? null : await startSiteServer({ port: demoPort() });
   const entry = externalUrl ?? `${site.origin}/docs/`;
 
   write(`  $ npx hanmcp ${entry}`);
   write('');
-  await sleep(400);
+  await hold(500);
 
   const manifest = await buildProject({
     url: entry,
@@ -101,21 +117,30 @@ async function main() {
     },
   });
 
+  // Shot 2's hold. The page list arrives in under a second, and two lines in it
+  // are the whole point — `中文文档 · hanmcp`, where a Chinese page title
+  // survives intact, and the robots.txt skip line, which is the cheapest signal
+  // that the tool behaves. Both need a moment on screen.
+  await hold(4000);
+
   write('');
   write(`  done in ${(manifest.durationMs / 1000).toFixed(1)}s`);
   write(`  ${manifest.stats.pages} pages  ->  ${manifest.stats.chunks} passages  ->  ${manifest.stats.terms} terms`);
   write(`  index.json ${(manifest.stats.indexBytes / 1024).toFixed(1)} KB   server.mjs ${(manifest.stats.serverBytes / 1024).toFixed(1)} KB`);
   write('  wrote docs/, llms.txt, llms-full.txt, index.json, server.mjs');
   write('');
-  await sleep(900);
+
+  // Shot 3's hold. Three numbers carry the value proposition — small, fast,
+  // self-contained — and cutting away before they are read wastes all three.
+  await hold(3500);
 
   write(`  $ claude mcp add hanmcp-docs -- node server.mjs`);
   write('');
-  await sleep(600);
+  await hold(2500); // Shot 5's hold: markdown files are not a product; this is.
 
   write(`  an AI client asks, in Chinese:  ${QUERY}`);
   write('');
-  await sleep(600);
+  await hold(2500); // Shot 4 opens. Let the question, in Chinese, be read first.
 
   const { responses } = await callMcpServer(SERVER_PATH, [
     {
@@ -147,10 +172,20 @@ async function main() {
   write('  answer');
   write(`  ${clip(answer, 620).split('\n').join('\n  ')}`);
   write('');
-  await sleep(400);
+
+  // The longest hold in the demo, and the reason the rest exists. The answer is
+  // roughly twenty lines of Chinese; the claim being made is that the section
+  // whose *title* matches the query came back, not the top of the page. That is
+  // only visible if there is time to look at it.
+  await hold(6500);
 
   write('  no API key. no embeddings. no cloud. everything above ran on this machine.');
   write('');
+
+  // Shot 6's hold. The line reframes the previous half minute from "a demo"
+  // into "something that runs on your laptop, on your private docs". It is the
+  // sentence that makes someone click through, so it gets to stand alone.
+  await hold(4000);
 
   if (site) {
     await site.close();
