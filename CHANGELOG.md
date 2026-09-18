@@ -4,13 +4,6 @@ All notable changes to this project are documented in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
-### Fixed
-
-- `--timeout <ms>` was accepted by the argument parser but never passed down to the crawler, so it silently did nothing and every request kept the 15-second default — a user raising it for a slow host got no effect and no warning. It now reaches the crawler, appears in `--help` and on the CLI reference page, and is covered by tests at both the "help lists it" and "it actually changes behaviour" levels.
-- The documented demo output in `README.md`, `README.zh-CN.md` and `docs/DEMO.md` had drifted (stale port, stale term count, stale BM25 score) and was a splice of two different sources. It is now the real output of `npx hanmcp`, and `npm run verify:readme` fails the build if any of those numbers stop matching reality.
-
 ## [0.1.0]
 
 First release.
@@ -30,6 +23,13 @@ First release.
 - Bilingual documentation: [README.md](README.md) and [README.zh-CN.md](README.zh-CN.md).
 - **Two documentation sites, deliberately kept apart.** `demo/fixture/` is a frozen sample site that powers the end-to-end test suite and the portability check, so editing the real docs never breaks a test. `site/` is hanmcp's own documentation and is what `npm run demo` crawls — the demo runs against the thing it documents.
 
+### Fixed
+
+Both defects were found before the first release, so they are folded into this version rather than left to a later one.
+
+- `--timeout <ms>` was accepted by the argument parser but never passed down to the crawler, so it silently did nothing and every request kept the 15-second default — a user raising it for a slow host got no effect and no warning. It now reaches the crawler, appears in `--help` and on the CLI reference page, and is covered by tests at both the "help lists it" and "it actually changes behaviour" levels.
+- The documented demo output in `README.md`, `README.zh-CN.md` and `docs/DEMO.md` had drifted (stale port, stale term count, stale BM25 score) and was a splice of two different sources. It is now the real output of `npx hanmcp`, and `npm run verify:docs` fails the build if any of those numbers stop matching reality.
+
 ### Known limitations
 
 Documented in the README under "What this does not do" rather than discovered by users:
@@ -39,5 +39,4 @@ Documented in the README under "What this does not do" rather than discovered by
 - `robots.txt` supports prefix matching only — no wildcards, no `$` anchors.
 - BM25 only. No vector or semantic search.
 
-[Unreleased]: https://github.com/Nephets1010/hanmcp/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/Nephets1010/hanmcp/releases/tag/v0.1.0

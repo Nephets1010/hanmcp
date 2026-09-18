@@ -81,7 +81,7 @@ Total 30 seconds. Six shots. Timings are targets, not laws; the cut points matte
   ```
 - **Caption:** *6 pages → one MCP server in 1 second*
 - **Why it works:** three numbers carry the whole value proposition — small, fast, self-contained. Do not cut away early; let the numbers sit for a full second.
-- **Note:** these numbers move whenever the docs change. `npm run verify:readme` catches the drift and prints the real values; take them from a fresh `npm run demo` before recording.
+- **Note:** these numbers move whenever the docs change. `npm run verify:docs` catches the drift and prints the real values; take them from a fresh `npm run demo` before recording.
 
 ### Shot 4 — 0:15–0:22 · The Chinese query
 
