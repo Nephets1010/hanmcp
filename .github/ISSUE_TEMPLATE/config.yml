@@ -3,9 +3,6 @@ contact_links:
   - name: Security vulnerability
     url: https://github.com/Nephets1010/hanmcp/security/advisories/new
     about: Report privately. Do not open a public issue for a security problem.
-  - name: Question or usage help
-    url: https://github.com/Nephets1010/hanmcp/discussions
-    about: For "how do I...", setup trouble, or anything that is not clearly a bug.
   - name: Documentation
     url: https://github.com/Nephets1010/hanmcp#readme
     about: CLI flags, output artifacts, and the list of things this tool deliberately does not do.

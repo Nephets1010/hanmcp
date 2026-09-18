@@ -1,0 +1,52 @@
+name: Question
+description: How do I do something, or why did the tool behave this way?
+title: "[Question] "
+labels: ["question"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Two things already answer most questions, and both are faster than waiting for a reply:
+
+        - `npx hanmcp help` lists every flag and its default.
+        - The README's **"What this does not do"** section covers the deliberate non-goals — JavaScript rendering, incremental re-crawl, vector search, and a hosted service. A question whose answer is in there will be pointed back at it.
+
+        If something is broken rather than unclear, use the **Bug report** form instead: it asks for the details that make a report fixable.
+
+  - type: textarea
+    id: goal
+    attributes:
+      label: What are you trying to do?
+      description: The situation, not the flag you think you need. "Index a site split across two hostnames" is more useful than "add a --also flag".
+      placeholder: |
+        Our guides live at docs.example.com and the API reference at api.example.com.
+        I want one MCP server that answers from both.
+    validations:
+      required: true
+
+  - type: textarea
+    id: tried
+    attributes:
+      label: What have you tried?
+      description: The command you ran, and what happened. Include the output — the `skip` lines usually explain a dropped page on their own.
+      render: shell
+      placeholder: |
+        $ npx hanmcp https://docs.example.com/ --max-depth 3
+    validations:
+      required: true
+
+  - type: input
+    id: url
+    attributes:
+      label: The documentation URL involved
+      description: Optional. If the site is internal or private, describe its structure instead.
+
+  - type: textarea
+    id: versions
+    attributes:
+      label: Environment
+      description: Only if the question is about behaviour you are seeing rather than how to do something.
+      value: |
+        hanmcp --version:
+        node --version:
+        OS:
