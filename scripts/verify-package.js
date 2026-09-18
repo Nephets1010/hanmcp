@@ -44,7 +44,7 @@
 
 import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { mkdir, mkdtemp, readFile, rm, stat, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { createServer } from 'node:http';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -69,6 +69,19 @@ const results = [];
 function check(label, ok, detail = '') {
   results.push({ label, ok });
   process.stdout.write(`${ok ? 'ok  ' : 'FAIL'}  ${label}${detail ? `  — ${detail}` : ''}\n`);
+}
+
+/**
+ * GitHub Actions turns `::error::` lines into annotations. A gate whose reason
+ * for failing can only be read from the raw job log is a gate nobody can
+ * diagnose; annotations are readable from the public API, and from the pull
+ * request page without opening anything.
+ * @param {string} message
+ */
+function annotate(message) {
+  if (process.env.GITHUB_ACTIONS === 'true') {
+    process.stdout.write(`::error::${message.replace(/\r?\n/g, ' ')}\n`);
+  }
 }
 
 /**
@@ -268,9 +281,14 @@ async function main() {
     if (packed.code !== 0) {
       throw new Error(`npm pack failed (exit ${packed.code}): ${packed.err.trim() || packed.out.trim()}`);
     }
-    const tarballName = packed.out.trim().split('\n').pop().trim();
-    const tarball = path.join(scratch, tarballName);
-    check('npm pack succeeds', existsSync(tarball), tarballName);
+    // Read the destination rather than parsing npm's stdout: the scratch
+    // directory was empty when we made it, so whatever is in there is ours.
+    const produced = (await readdir(scratch)).filter((name) => name.endsWith('.tgz'));
+    if (produced.length !== 1) {
+      throw new Error(`expected one tarball in the scratch directory, found ${produced.length}`);
+    }
+    const tarball = path.join(scratch, produced[0]);
+    check('npm pack succeeds', existsSync(tarball), produced[0]);
 
     // -- 2. install it the way a stranger would -----------------------------
     await mkdir(consumer, { recursive: true });
@@ -424,6 +442,7 @@ async function main() {
     process.stderr.write('\nthe package that would be published does not work:\n');
     for (const failure of failed) {
       process.stderr.write(`  - ${failure.label}\n`);
+      annotate(`verify-package: ${failure.label}`);
     }
     process.stderr.write(
       '\nThis check installs the tarball `npm publish` would send into a clean consumer and runs it.\n' +
@@ -442,6 +461,10 @@ async function main() {
 }
 
 main().catch((error) => {
+  const message = error instanceof Error ? error.message : String(error);
+  // The stack is useful locally; the annotation carries the part that matters
+  // to whoever is looking at a failed run without the log open.
+  annotate(`verify-package crashed: ${message.slice(0, 900)}`);
   process.stderr.write(`package check crashed: ${error instanceof Error ? error.stack : String(error)}\n`);
   process.exitCode = 1;
 });
