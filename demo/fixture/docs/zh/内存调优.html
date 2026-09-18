@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>内存调优 · Orbital Docs</title>
+<meta name="description" content="Orbital DB 内存预算与写入缓存的调优方法，含索引开销估算与 fsync 策略取舍。">
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <nav class="site-nav"><a href="/docs/">文档</a><a href="/docs/zh/index.html">中文文档</a></nav>
+</header>
+<main>
+  <h1>内存调优</h1>
+  <p>内存预算在进程启动时一次性预留，不做动态扩张。这个设计换来的确定性，比省下的那几百 KB 更值钱——边缘网关上静默换页会直接表现为写入抖动。</p>
+
+  <h2>索引开销怎么算</h2>
+  <p>索引大约每个不同序列占用 12 字节。二十万个序列约需 2.3MB，剩下的额度留给写缓存。默认 8MB 预算下写缓存还剩 5.7MB，足够支撑四核网关上的满速写入。</p>
+
+  <h2>写缓存与 fsync 的取舍</h2>
+  <p>写缓存按刷新周期批量落盘。把 <code>fsync</code> 从 <code>always</code> 改成 <code>interval</code>，在电快闪存上大约能换回 40% 的吞吐，代价是断电时最多丢失一个刷新周期的样本。</p>
+
+  <h2>常见误配</h2>
+  <ul>
+    <li>把数据库文件放在网络文件系统上：追加日志需要本地磁盘，远程挂载会让写入延迟直接失控。</li>
+    <li>预算给得刚好等于索引尺寸：没有给写缓存留额度，写入会退化成同步落盘。</li>
+    <li>用容器内存限制当作预算：容器限制是硬上限，超出会直接 OOM 杀掉进程，而不是优雅拒绝启动。</li>
+  </ul>
+
+  <h2>相关文档</h2>
+  <ul>
+    <li><a href="/docs/zh/index.html">快速上手</a></li>
+    <li><a href="/docs/guide/configuration.html">配置项说明</a></li>
+  </ul>
+</main>
+<footer class="site-footer"><p>&copy; 2026 Orbital Labs</p></footer>
+</body>
+</html>

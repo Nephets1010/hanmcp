@@ -1,0 +1,29 @@
+# Line endings are LF everywhere, on every platform, always.
+#
+# This is not cosmetic. The test suite reads the HTML fixtures in demo/fixture/
+# straight off disk and asserts on the markdown the crawler produces from them.
+# A Windows checkout that silently gained CRLF would feed \r into the extractor,
+# so the same commit would behave differently on two machines. `.editorconfig`
+# asks for LF; this file enforces it even for contributors whose editor ignores
+# `.editorconfig`.
+* text=auto eol=lf
+
+# Generated bundles and fixtures are compared byte-for-byte in tests.
+*.js text eol=lf
+*.mjs text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.yml text eol=lf
+*.txt text eol=lf
+
+# These must stay byte-identical to the upstream text or the licence is wrong.
+LICENSE -text
+NOTICE -text
+
+# Binary demo assets.
+*.gif binary
+*.mp4 binary
+*.png binary
+*.ico binary

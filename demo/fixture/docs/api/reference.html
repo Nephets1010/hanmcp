@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>API reference · Orbital Docs</title>
+<meta name="description" content="The complete Orbital DB query surface, including aggregates, gap filling, and continuous queries.">
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <nav class="site-nav"><a href="/docs/">Docs</a><a href="/blog/">Blog</a></nav>
+</header>
+<main>
+  <h1>API reference</h1>
+  <p>Orbital exposes one query language and three transport bindings. The language is SQL with duration literals and three extensions: <code>GROUP BY time()</code>, gap filling, and continuous queries.</p>
+
+  <h2>Aggregates</h2>
+  <p>The standard set is available: <code>mean</code>, <code>sum</code>, <code>min</code>, <code>max</code>, <code>count</code>, <code>first</code>, <code>last</code>, <code>spread</code>, and <code>stddev</code>. Percentiles are computed exactly rather than approximately, which is affordable because partitions are already sorted by time.</p>
+  <pre><code class="language-sql">SELECT percentile(value, 0.99) FROM latency WHERE time &gt; now() - 15m;</code></pre>
+
+  <h2>Gap filling</h2>
+  <p>Time-bucketed queries return one row per bucket by default, including buckets with no data. Use <code>fill(none)</code> to drop empty buckets instead, or <code>fill(previous)</code> to carry the last known value forward.</p>
+  <pre><code class="language-sql">SELECT mean(value) FROM temperature
+WHERE time &gt; now() - 6h GROUP BY time(1m) fill(previous);</code></pre>
+
+  <h2>Continuous queries</h2>
+  <p>A continuous query materialises an aggregate as new data lands. It is the supported way to downsample old data before retention drops the raw samples.</p>
+  <pre><code class="language-sql">CREATE CONTINUOUS QUERY hourly_temp ON telemetry
+BEGIN
+  SELECT mean(value) INTO temperature_hourly
+  FROM temperature GROUP BY time(1h), site
+END;</code></pre>
+
+  <h2>Error codes</h2>
+  <table>
+    <thead><tr><th>Code</th><th>Meaning</th><th>What to do</th></tr></thead>
+    <tbody>
+      <tr><td>EACCES</td><td>The database file is not writable.</td><td>Fix ownership on the directory, not on the file.</td></tr>
+      <tr><td>EBUDGET</td><td>The memory budget is below what the index needs.</td><td>Raise <code>memory-budget</code> or reduce the series count.</td></tr>
+      <tr><td>EQUERY</td><td>The query references a field that does not exist.</td><td>List fields with <code>SHOW FIELDS</code>.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>See also</h2>
+  <ul>
+    <li><a href="/docs/guide/configuration.html">Configuration</a></li>
+    <li><a href="/docs/guide/getting-started.html">Getting started</a></li>
+  </ul>
+</main>
+<footer class="site-footer"><p>&copy; 2026 Orbital Labs</p></footer>
+</body>
+</html>

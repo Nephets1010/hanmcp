@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>快速上手 · Orbital Docs</title>
+<meta name="description" content="面向中文用户的 Orbital DB 快速上手说明，涵盖内存占用、边缘设备部署与写入延迟调优。">
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <nav class="site-nav"><a href="/docs/">文档</a><a href="/blog/">博客</a></nav>
+</header>
+<main>
+  <h1>快速上手</h1>
+  <p>Orbital DB 是一个可以嵌入到应用里的时序数据库，整个存储引擎只占一个文件，常驻内存占用控制在 8MB 以内，适合边缘设备、工业网关这类没有条件部署集群的场景。</p>
+
+  <h2>安装与初始化</h2>
+  <p>Orbital 以单个二进制文件分发，不需要守护进程，也不需要单独安装客户端。初始化时指定保留策略即可：</p>
+  <pre><code class="language-bash">orbital init ./telemetry.odb --retention 30d</code></pre>
+
+  <h2>内存占用怎么估算</h2>
+  <p>内存预算不是软限制：Orbital 会在启动时一次性预留，如果请求的预算超过容器限制就直接拒绝启动，因为边缘网关上的静默换页比启动失败更糟糕。索引大约每个不同序列占用 12 字节，剩下的额度留给写缓存。二十万个序列的索引约需 2.3MB，默认 8MB 预算下写缓存还剩 5.7MB。</p>
+
+  <h2>写入延迟调优</h2>
+  <p>写入路径不会阻塞调用方超过一毫秒。如果发现写入变慢，先确认存储介质不是网络文件系统——Orbital 的追加日志需要本地磁盘。把 <code>fsync</code> 设为 <code>interval</code> 可以在电快闪存上换回大约 40% 的吞吐，代价是断电时最多丢失一个刷新周期的样本。</p>
+
+  <h2>常见问题</h2>
+  <ul>
+    <li>进程以 <code>EACCES</code> 退出：数据库文件所在目录当前用户没有写权限，注意要修目录权限而不是文件权限。</li>
+    <li>查询报 <code>EBUDGET</code>：内存预算低于索引所需，提高 <code>memory-budget</code>，或者减少序列数量。</li>
+    <li>写入吞吐只有预期的一半：检查是否开启了 <code>fsync = always</code>，这个配置每次写入都要落盘。</li>
+  </ul>
+
+  <h2>相关文档</h2>
+  <ul>
+    <li><a href="/docs/zh/%E5%86%85%E5%AD%98%E8%B0%83%E4%BC%98.html">内存调优</a></li>
+    <li><a href="/docs/guide/configuration.html">配置项说明</a></li>
+    <li><a href="/docs/api/reference.html">API 参考</a></li>
+  </ul>
+</main>
+<footer class="site-footer"><p>&copy; 2026 Orbital Labs</p></footer>
+</body>
+</html>

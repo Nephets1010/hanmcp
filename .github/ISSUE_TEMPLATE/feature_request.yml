@@ -1,0 +1,57 @@
+name: Feature request
+description: Propose a change in behaviour. Read the non-goals first.
+title: "[Feature] "
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before opening this: the README has a **"What this does not do"** section, and it is not marketing. JavaScript rendering, incremental re-crawl, vector search and a hosted service are deliberate non-goals. Requests for those will be closed with a pointer back to it rather than debated.
+
+        What is very welcome: anything that makes the existing three jobs — crawl, index, serve — work better on more kinds of documentation.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem are you hitting?
+      description: Describe the situation, not the solution. What are you trying to do, and where does it break down today?
+      placeholder: |
+        Our docs are split across two hostnames — guides on one, API reference on another.
+        There is no way to get both into a single index.
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What you would like to happen
+      description: A concrete sketch is fine — a flag name, a file format, an expected output. It does not need to be a design document.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: What you tried instead
+      description: Existing flags, manual post-processing, another tool. This is often the most useful part of the request.
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: Constraints check
+      description: Two hard constraints. A proposal that needs either one will be asked to change shape.
+      options:
+        - label: This can be implemented without adding a dependency.
+          required: true
+        - label: This does not require a headless browser or JavaScript rendering.
+          required: true
+
+  - type: checkboxes
+    id: willing
+    attributes:
+      label: Would you be willing to open a pull request?
+      options:
+        - label: Yes, if someone points me at the right file.
+        - label: Yes, I can write it.

@@ -1,0 +1,27 @@
+# Dependencies — there are none, and this line is a canary.
+# If you find yourself uncommenting it, read CONTRIBUTING.md first.
+node_modules/
+
+# Build output
+mcp-docs/
+
+# Demo and test scratch directories
+demo/.out/
+.cli-out/
+.smoke-out/
+*.out/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editors
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini

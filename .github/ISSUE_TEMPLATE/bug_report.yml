@@ -1,0 +1,95 @@
+name: Bug report
+description: Something did not work the way the documentation says it should.
+title: "[Bug] "
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. Two things make a bug report fast to fix: the exact command you ran, and the full output — **including the `skip` lines**, which usually say precisely why a page was dropped.
+
+        If you have a security concern, please do not use this form — see [SECURITY.md](https://github.com/Nephets1010/hanmcp/blob/main/SECURITY.md).
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Before you file
+      options:
+        - label: I searched existing issues and this is not a duplicate.
+          required: true
+        - label: I am running the latest published version.
+          required: true
+        - label: This is a bug, not a feature request or a question.
+          required: true
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you expect, and what happened instead?
+      placeholder: |
+        I expected the output directory to contain 40 pages.
+        Instead the crawl stopped after 6 and exited 0.
+    validations:
+      required: true
+
+  - type: textarea
+    id: command
+    attributes:
+      label: The exact command you ran
+      render: shell
+      placeholder: npx hanmcp https://docs.example.com/ --max-depth 3 --out ./docs-mcp
+    validations:
+      required: true
+
+  - type: textarea
+    id: output
+    attributes:
+      label: Full output
+      description: Paste everything, including `skip` lines and any stack trace.
+      render: shell
+    validations:
+      required: true
+
+  - type: input
+    id: url
+    attributes:
+      label: The documentation URL involved
+      description: Important for anything crawl-related. If it is internal or private, say so and describe the site's structure instead.
+      placeholder: https://docs.example.com/
+
+  - type: dropdown
+    id: site-type
+    attributes:
+      label: What serves the documentation site?
+      description: This pins down most crawl bugs immediately.
+      options:
+        - Static HTML (Docusaurus, MkDocs, VitePress, Hugo, Jekyll...)
+        - JavaScript-rendered single page app
+        - Something behind authentication or a VPN
+        - A CMS or wiki with generated URLs
+        - Not sure
+        - Not applicable
+    validations:
+      required: true
+
+  - type: textarea
+    id: versions
+    attributes:
+      label: Environment
+      description: Run the commands and paste the results.
+      value: |
+        hanmcp --version:
+        node --version:
+        OS:
+    validations:
+      required: true
+
+  - type: textarea
+    id: content-language
+    attributes:
+      label: Language of the documentation
+      description: If this involves CJK text, paste a short sample of the original and what the tool produced. Real text, not transliterated filler.
+      placeholder: |
+        Original heading: 内存占用怎么估算
+        Produced filename: zh/e5-86-85-e5-ad-98...

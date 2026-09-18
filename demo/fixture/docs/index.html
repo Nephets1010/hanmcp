@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Orbital DB Documentation</title>
+<meta name="description" content="Orbital DB is an embeddable time-series database for edge devices.">
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="/">Orbital</a>
+  <nav class="site-nav">
+    <a href="/docs/">Docs</a>
+    <a href="/blog/">Blog</a>
+    <a href="https://example.com/partner">Partners</a>
+  </nav>
+</header>
+<main>
+  <h1>Orbital DB</h1>
+  <p>Orbital DB is an embeddable time-series database that runs in under 8 MB of memory. It is built for edge devices, industrial gateways, and any deployment that cannot afford a cluster.</p>
+
+  <h2>Start here</h2>
+  <ul>
+    <li><a href="/docs/guide/getting-started.html">Getting started</a> — install Orbital and write your first row in five minutes.</li>
+    <li><a href="/docs/guide/configuration.html">Configuration</a> — every option with its default, plus the memory budget model.</li>
+    <li><a href="/docs/api/reference.html">API reference</a> — the full query surface.</li>
+    <li><a href="/docs/zh/index.html">中文文档</a> — 面向中文用户的快速上手说明。</li>
+  </ul>
+
+  <h2>Why it exists</h2>
+  <p>Every existing time-series database assumes a cluster somewhere. Orbital assumes a device. The entire storage engine lives in one file you can copy with <code>scp</code>, and a single writer handles 120,000 samples per second on a four-core gateway.</p>
+
+  <h2>Design constraints</h2>
+  <p>Three constraints shaped every decision in this project: total memory under 8 MB, no background compaction that can starve a real-time workload, and a write path that never blocks the caller for longer than one millisecond.</p>
+
+  <p><img src="/assets/logo.png" alt="Orbital DB logo"></p>
+  <p class="muted"><a href="/docs/private/roadmap.html">Internal roadmap</a> · <a href="/downloads/orbital.zip">Download the archive</a></p>
+</main>
+<footer class="site-footer">
+  <p>&copy; 2026 Orbital Labs · <a href="https://example.com/terms">Terms</a></p>
+</footer>
+</body>
+</html>

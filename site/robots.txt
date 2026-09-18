@@ -1,0 +1,8 @@
+# hanmcp is a documentation crawler. The public site is what we want indexed;
+# the notes under /docs/private/ are internal working documents.
+
+User-agent: *
+Allow: /
+Disallow: /docs/private/
+
+Crawl-delay: 0

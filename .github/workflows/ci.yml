@@ -1,0 +1,85 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: node ${{ matrix.node }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        node: ['20', '22']
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      # No `npm ci` on purpose: there is no lockfile because there are no
+      # dependencies. Installing nothing is the test.
+      - name: Verify the package has no dependencies
+        shell: bash
+        run: |
+          node -e '
+            const pkg = require("./package.json");
+            const runtime = Object.keys(pkg.dependencies || {});
+            const dev = Object.keys(pkg.devDependencies || {});
+            if (runtime.length || dev.length) {
+              console.error("hanmcp must stay dependency-free.");
+              console.error("runtime:", runtime.join(", ") || "(none)");
+              console.error("dev:    ", dev.join(", ") || "(none)");
+              process.exit(1);
+            }
+            console.log("dependency-free: ok");
+          '
+
+      - name: Syntax gate (sources and the generated server)
+        run: node scripts/syntax-check.js
+
+      - name: Tests
+        run: node --test
+
+      - name: End-to-end demo
+        # The demo pins port 8904 for reproducible recordings; on a shared
+        # runner a random port is safer.
+        env:
+          DEMO_PORT: '0'
+        run: node demo/run-demo.js
+
+      # The README opens with two blocks of output and says they are real. The
+      # numbers in them move whenever site/ changes, so this is the step that
+      # stops the README from quietly becoming a lie.
+      - name: Documented demo output still matches
+        run: node scripts/verify-readme-demo.js
+
+  portable-bundle:
+    name: generated bundle runs with no repository present
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # Guards the README's central claim: three files are all you need.
+      - name: Verify server.mjs, index.json and docs/ are self-contained
+        run: node scripts/verify-portable.js

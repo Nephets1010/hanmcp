@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Installation · hanmcp Docs</title>
+<meta name="description" content="Requirements and setup for hanmcp. Node.js 20 or newer, and nothing else.">
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <nav class="site-nav"><a href="/docs/">Docs</a><a href="/docs/zh/">中文</a></nav>
+</header>
+<main>
+  <h1>Installation</h1>
+  <p>hanmcp requires Node.js 20 or newer and nothing else. It has zero runtime dependencies, and a check in continuous integration fails the build if that ever stops being true. There is no compiler step, no native module to rebuild, and no post-install script.</p>
+
+  <h2>Run it without installing</h2>
+  <p>The fastest path is to invoke it directly. Nothing is written outside your current directory:</p>
+  <pre><code class="language-bash">npx hanmcp https://docs.example.com/</code></pre>
+
+  <h2>Install it globally</h2>
+  <p>If you build documentation indexes regularly, install it once. The package is a few hundred kilobytes and the global install is what most CI pipelines use:</p>
+  <pre><code class="language-bash">npm install -g hanmcp
+hanmcp --version</code></pre>
+
+  <h2>From source</h2>
+  <p>Working on hanmcp itself, or pinning to a commit, both start the same way. The test suite needs no network access because it starts a documentation site on localhost and crawls that:</p>
+  <pre><code class="language-bash">git clone https://github.com/Nephets1010/hanmcp
+cd hanmcp
+npm run check</code></pre>
+
+  <h2>Verify the install</h2>
+  <p>A working install crawls the bundled sample site end to end and talks to the server it generates. This is the same command continuous integration runs on every commit, so if it passes on your machine your environment matches the supported one exactly:</p>
+  <pre><code class="language-bash">npm run demo</code></pre>
+
+  <h2>Common problems</h2>
+  <ul>
+    <li>The process exits with an unsupported engine error: you are on Node 18 or older. hanmcp uses the built-in test runner and the global fetch API, both of which stabilised in Node 20.</li>
+    <li><code>npx</code> downloads the package on every run: that is expected and intended for a one-off. Install globally to cache it.</li>
+    <li>The build finishes and the output directory is empty: the entry URL probably returned a redirect to a different origin, which the crawler deliberately refuses to follow across hosts.</li>
+  </ul>
+
+  <h2>Related</h2>
+  <ul>
+    <li><a href="/docs/guide/cli.html">Command line reference</a></li>
+    <li><a href="/docs/guide/how-it-works.html">How it works</a></li>
+  </ul>
+</main>
+<footer class="site-footer"><p>&copy; 2026 hanmcp contributors</p></footer>
+</body>
+</html>

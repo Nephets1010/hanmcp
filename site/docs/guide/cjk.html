@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>CJK support · hanmcp Docs</title>
+<meta name="description" content="Chinese, Japanese and Korean text breaks naive tokenizers and naive filenames. How hanmcp handles both, and how the memory budget works.">
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <nav class="site-nav"><a href="/docs/">Docs</a><a href="/docs/zh/">中文</a></nav>
+</header>
+<main>
+  <h1>CJK support</h1>
+  <p>Most documentation tooling is written for English and quietly fails on Chinese, Japanese and Korean text. It fails in two separate places, and fixing only one of them still leaves the tool useless for a Chinese user.</p>
+
+  <h2>Tokens</h2>
+  <p>English is separable by whitespace. Chinese is not: a sentence has no spaces, so splitting on whitespace yields one enormous token per sentence and no query ever matches it. The standard fix is to tokenise CJK as overlapping bigrams — every adjacent pair of characters becomes a term. A query and its answer then share terms whenever they share two consecutive characters, which is a good proxy for sharing a word.</p>
+  <p>The cost is index size, roughly one term per character rather than one per word. For documentation this is the right trade, because it needs no dictionary, no segmentation model, and no network call, and it still matches unseen phrases. Latin runs are lowercased and split as usual, so a mixed query keeps both token streams intact.</p>
+
+  <h2>Filenames</h2>
+  <p>The second failure is quieter and more damaging. A URL path keeps its percent-encoding, so a page at <code>/docs/指南/快速上手.html</code> arrives as <code>/docs/%E6%8C%87%E5%8D%97/%E5%BF%AB%E9%80%9F%E4%B8%8A%E6%89%8B.html</code>. A naive tool slugs that literally and writes <code>e5-bf-ab-e9-80-9f.md</code>. The file is correct and completely unreadable, and a user scanning the output directory concludes the tool mangles their language.</p>
+  <p>Segments are decoded before they are slugged, and the slug character class is defined over Unicode letters and numbers rather than ASCII. A Chinese path therefore produces a Chinese filename. This is verified end to end against a percent-encoded URL, not just asserted in a unit test.</p>
+
+  <h2>The memory budget</h2>
+  <p>Because bigrams inflate the term count, the index is the largest artifact a build produces. A documentation site with a few hundred pages indexes to a few megabytes, which commits to a repository without argument. The budget is not a soft limit: the build measures the index it is about to write and reports it, so the cost is visible before it becomes someone's problem.</p>
+
+  <h2>What is not supported</h2>
+  <p>There is no Chinese-specific dictionary and therefore no stemming or part-of-speech awareness, so a query must share two consecutive characters with the text it is looking for. That is a real limitation, stated here rather than discovered later. Semantically equivalent wording with no character overlap will not match.</p>
+
+  <h2>Related</h2>
+  <ul>
+    <li><a href="/docs/zh/index.html">中文文档</a></li>
+    <li><a href="/docs/guide/how-it-works.html">How it works</a></li>
+  </ul>
+</main>
+<footer class="site-footer"><p>&copy; 2026 hanmcp contributors</p></footer>
+</body>
+</html>

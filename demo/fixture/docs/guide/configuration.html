@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Configuration · Orbital Docs</title>
+<meta name="description" content="Every Orbital DB option, its default, and how the memory budget is calculated.">
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <nav class="site-nav"><a href="/docs/">Docs</a><a href="/blog/">Blog</a></nav>
+</header>
+<main>
+  <h1>Configuration</h1>
+  <p>Orbital reads configuration from CLI flags, then from <code>orbital.toml</code>, then from environment variables. Flags win. Nothing is required: every option has a default that is safe on a 64 MB device.</p>
+
+  <h2>Options</h2>
+  <table>
+    <thead><tr><th>Option</th><th>Default</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td>retention</td><td>30d</td><td>How long samples are kept before the partition dropper removes them.</td></tr>
+      <tr><td>memory-budget</td><td>8mb</td><td>Upper bound on resident memory for the write cache and the index.</td></tr>
+      <tr><td>fsync</td><td>interval</td><td>One of <code>always</code>, <code>interval</code>, <code>never</code>. Durability versus write throughput.</td></tr>
+      <tr><td>flush-interval</td><td>2s</td><td>How often the write cache is flushed into an immutable segment.</td></tr>
+    </tbody>
+  </table>
+
+  <h2>The memory budget</h2>
+  <p>Memory is not a soft limit. Orbital reserves the budget up front and refuses to start if the requested budget exceeds the container limit, because silent swapping on a gateway is worse than a failed boot. The index costs roughly 12 bytes per distinct series, and the write cache takes the remainder.</p>
+  <p>For 200,000 series the index alone needs about 2.3 MB, which leaves 5.7 MB of a default budget for the write cache. If your series count is larger than that, raise <code>memory-budget</code> rather than lowering <code>flush-interval</code>: flushing more often increases write amplification on flash storage.</p>
+
+  <h2>Durability trade-offs</h2>
+  <p>With <code>fsync = always</code> every accepted write is on disk before the call returns, which costs roughly 40% of peak throughput on eMMC. With <code>interval</code> you can lose up to <code>flush-interval</code> worth of samples on power loss, which is the right default for telemetry that is re-sent by the collector anyway.</p>
+
+  <h2>See also</h2>
+  <ul>
+    <li><a href="/docs/guide/getting-started.html">Getting started</a></li>
+    <li><a href="/docs/api/reference.html">API reference</a></li>
+  </ul>
+</main>
+<footer class="site-footer"><p>&copy; 2026 Orbital Labs</p></footer>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>hanmcp Documentation</title>
+<meta name="description" content="Turn any documentation site into a working MCP server, in one command. Zero dependencies, no API keys, no embeddings, no cloud.">
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="/">hanmcp</a>
+  <nav class="site-nav">
+    <a href="/docs/">Docs</a>
+    <a href="/docs/zh/">中文</a>
+    <a href="https://github.com/Nephets1010/hanmcp">GitHub</a>
+  </nav>
+</header>
+<main>
+  <h1>hanmcp</h1>
+  <p>hanmcp turns a documentation site into a working MCP server in one command. It crawls the site, converts every page to clean markdown, builds a dependency-free search index, and writes out a standalone server that Claude, Cursor, or any other MCP client can connect to. There is no install step, no API key, no embedding model to download, and no cloud service in the loop.</p>
+
+  <h2>Start here</h2>
+  <ul>
+    <li><a href="/docs/guide/installation.html">Installation</a> — requirements, and why there is no install step.</li>
+    <li><a href="/docs/guide/cli.html">Command line reference</a> — every flag, its default, and the scope rule that surprises people.</li>
+    <li><a href="/docs/guide/how-it-works.html">How it works</a> — the crawl, the index, and the server it emits.</li>
+    <li><a href="/docs/guide/cjk.html">CJK support</a> — why every English-first tool returns nothing for a Chinese query.</li>
+    <li><a href="/docs/zh/index.html">中文文档</a> — 中文优先的设计说明与快速上手。</li>
+  </ul>
+
+  <h2>Why it exists</h2>
+  <p>Most documentation is invisible to an AI agent. The agent either cannot reach the site at all, or it fetches pages one at a time and burns context on navigation chrome. Existing tools that solve this assume an embedding provider and an API key, which rules out air-gapped machines, internal wikis behind a VPN, and anyone who does not want to ship their documentation to a third party.</p>
+  <p>hanmcp takes the opposite position. Retrieval over documentation is a solved problem that does not need a model. A local BM25 index over a few hundred pages costs a few megabytes, builds in seconds, and works offline forever.</p>
+
+  <h2>Design constraints</h2>
+  <p>Four constraints shaped every decision in this project: zero runtime dependencies, no network access after the crawl, correct behaviour on Chinese, Japanese and Korean text, and an output bundle small enough to commit to a repository. Anything that threatened one of those four was rejected regardless of how useful it looked.</p>
+
+  <p class="muted"><a href="/docs/private/benchmarks.html">Internal benchmark notes</a> · <a href="https://github.com/Nephets1010/hanmcp/releases">Release archive</a></p>
+</main>
+<footer class="site-footer">
+  <p>&copy; 2026 hanmcp contributors · <a href="https://github.com/Nephets1010/hanmcp/blob/main/LICENSE">Apache-2.0</a></p>
+</footer>
+</body>
+</html>

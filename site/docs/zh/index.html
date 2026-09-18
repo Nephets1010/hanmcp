@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>中文文档 · hanmcp</title>
+<meta name="description" content="hanmcp 中文快速上手：一条命令把文档站变成 MCP 服务器，涵盖索引内存占用、中文分词与路径处理。">
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <nav class="site-nav"><a href="/docs/">文档</a><a href="/docs/zh/">中文</a><a href="https://github.com/Nephets1010/hanmcp">GitHub</a></nav>
+</header>
+<main>
+  <h1>中文文档</h1>
+  <p>hanmcp 用一条命令把任意文档站变成可用的 MCP 服务器。它会抓取站点、把每个页面转成干净的 markdown、在本地建立检索索引，最后写出一个独立的服务器文件，Claude、Cursor 或任何 MCP 客户端都能直接连上。整个过程不需要 API key，不需要下载嵌入模型，也不经过任何云端服务。</p>
+
+  <h2>安装与运行</h2>
+  <p>只要求 Node.js 20 或更高版本，没有其他依赖，也没有编译步骤。可以直接运行而不安装：</p>
+  <pre><code class="language-bash">npx hanmcp https://docs.example.com/</code></pre>
+  <p>如果在 CI 里定期构建索引，建议全局装一次。构建产物默认写到 <code>mcp-docs</code> 目录：</p>
+  <pre><code class="language-bash">npm install -g hanmcp
+hanmcp https://docs.example.com/ --out ./vendor-docs --quiet</code></pre>
+
+  <h2>索引内存占用怎么估算</h2>
+  <p>这是中文用户最常问的问题，因为中文分词会显著放大索引体积。hanmcp 把中文按相邻二字切分成重叠的二元组，也就是每个相邻字符对都成为一个词条，所以词条数量大致是字符数量级，而不是英文那样的单词数量级。</p>
+  <p>实际量级可以这样估算：一份三百页左右的中文文档站，正文约二十万字，切分后词条约二十万条，倒排索引序列化到 <code>index.json</code> 大约在 3 到 6 MB 之间，取决于文档里重复措辞的比例。重复措辞越多，每个词条对应的文档列表越长，索引越大。作为对比，同样内容的英文站在 1 MB 上下。</p>
+  <p>这个体积是刻意接受的取舍。它换来的是完全离线的检索：不需要词典文件，不需要分词模型，不需要任何网络请求，也不会出现模型下载失败导致构建中断的情况。如果 <code>index.json</code> 的体积对仓库来说太大，可以在 CI 里构建而不是提交进版本库，或者用 <code>--max-pages</code> 限制收录范围，只索引核心的 API 文档。</p>
+
+  <h2>中文路径与文件名</h2>
+  <p>URL 路径本身是百分号编码的，所以 <code>/docs/指南/快速上手.html</code> 在抓取时是以 <code>%E6%8C%87%E5%8D%97</code> 这样的形式出现的。如果直接拿编码后的字符串生成文件名，会得到 <code>e5-bf-ab-e9-80-9f.md</code> 这种完全不可读的结果——文件内容是对的，但用户打开输出目录会觉得这个工具处理不了中文。</p>
+  <p>hanmcp 会先解码路径片段再生成文件名，并且把文件名的合法字符集定义在 Unicode 字母和数字上而不是 ASCII 上，所以中文路径会原样生成中文文件名。</p>
+
+  <h2>输出内容</h2>
+  <p>一次构建会产出五类文件。<code>docs/</code> 目录下每个页面一个 markdown 文件，路径结构与 URL 一一对应。<code>index.json</code> 是序列化后的倒排索引。<code>server.mjs</code> 是完整的独立 MCP 服务器，读取前两者即可运行。<code>llms.txt</code> 和 <code>llms-full.txt</code> 遵循 llms.txt 约定，适合需要低成本整体摄入的爬虫和智能体。</p>
+  <p>其中真正重要的是服务器文件。一个 markdown 目录只是一个文件格式，而一个能应答结构化查询的进程才是可用的东西。把 <code>server.mjs</code>、<code>index.json</code> 和 <code>docs/</code> 三个文件复制到另一台机器上，服务器同样能跑起来，这条性质在每次提交时都有 CI 检查。</p>
+
+  <h2>常见问题</h2>
+  <ul>
+    <li>构建完成后输出目录是空的：入口 URL 很可能重定向到了另一个域名，跨域跳转是被刻意拒绝的。</li>
+    <li>中文查询返回空结果：确认查询文本和目标页面至少有两个连续字符相同。二元组分词没有词典，做不到同义替换匹配。</li>
+    <li>进度提示里出现 <code>skip robots.txt disallows</code>：这是正常行为，站点通过 robots.txt 声明了不该被抓取的路径，工具遵守了这个约定。</li>
+    <li>生成的文件名是不可读的十六进制：说明你用的版本较旧，路径解码是在早期版本之后加入的。</li>
+  </ul>
+
+  <h2>相关文档</h2>
+  <ul>
+    <li><a href="/docs/guide/installation.html">安装说明</a></li>
+    <li><a href="/docs/guide/cli.html">命令行参数</a></li>
+    <li><a href="/docs/guide/cjk.html">CJK support</a></li>
+  </ul>
+</main>
+<footer class="site-footer"><p>&copy; 2026 hanmcp contributors</p></footer>
+</body>
+</html>

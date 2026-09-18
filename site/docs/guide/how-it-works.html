@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>How it works · hanmcp Docs</title>
+<meta name="description" content="The three stages of a hanmcp build: crawl, index, emit. And why the output is a server rather than a folder of markdown.">
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <nav class="site-nav"><a href="/docs/">Docs</a><a href="/docs/zh/">中文</a></nav>
+</header>
+<main>
+  <h1>How it works</h1>
+  <p>A build is three stages with no configuration between them: crawl the site, build an index in memory, emit the bundle. Nothing is written to disk until the crawl has finished, so a site that fails halfway leaves no half-built artifacts behind.</p>
+
+  <h2>Stage one: crawl</h2>
+  <p>The crawler walks the site breadth-first from the entry URL. It stays on one origin, respects the scope rule, honours robots.txt, and keeps at least the configured delay between requests. Each HTML response is reduced to a title, a description, a markdown body, and the list of links found inside the main content region. Pages yielding less than eighty characters of readable text are dropped rather than written out as empty stubs, which keeps boilerplate landing pages out of the index.</p>
+
+  <h2>Stage two: index</h2>
+  <p>Page markdown is split into passages along heading boundaries. Passages are the retrieval unit, not whole pages, because a whole page of documentation dilutes its own keywords and returns a wall of text. A passage therefore always carries the heading path it came from, so results arrive with an attributable section and never just a document title.</p>
+  <p>Scoring is BM25 over an inverted index built in memory, with two adjustments. Heading terms are weighted above body terms, and an exact phrase match receives a flat bonus. Both exist for the same reason: documentation queries are usually the title of the page you want. A search index that cannot tell a heading apart from a passing mention is an index that returns the wrong passage first.</p>
+
+  <h2>Stage three: emit</h2>
+  <p>The bundle is five artifacts. <code>docs/</code> holds one markdown file per page with the path mirroring the URL structure. <code>index.json</code> is the serialised inverted index. <code>server.mjs</code> is a complete standalone MCP server that reads the other two. <code>llms.txt</code> and <code>llms-full.txt</code> follow the llms.txt convention for crawlers and agents that want cheap ingestion.</p>
+  <p>The server is the point of the whole exercise. A directory of markdown is a file format; a process that answers a structured query is a product. <code>server.mjs</code> has no imports from npm and no lockfile. Copy it, <code>index.json</code> and <code>docs/</code> to another machine and the server runs there, which is what the portability check in continuous integration verifies on every commit.</p>
+
+  <h2>Why not just fetch the page</h2>
+  <p>Because the failure mode is silent. An agent that fetches documentation live spends its context on navigation, retries and redirects, and when the site is behind a VPN it simply invents an answer. A prebuilt local index is deterministic, diffable in a pull request, and available on a plane.</p>
+
+  <h2>Related</h2>
+  <ul>
+    <li><a href="/docs/guide/cjk.html">CJK support</a></li>
+    <li><a href="/docs/guide/cli.html">Command line reference</a></li>
+  </ul>
+</main>
+<footer class="site-footer"><p>&copy; 2026 hanmcp contributors</p></footer>
+</body>
+</html>

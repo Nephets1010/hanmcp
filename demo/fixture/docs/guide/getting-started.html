@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Getting started · Orbital Docs</title>
+<meta name="description" content="Install Orbital DB and write your first row in five minutes.">
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <nav class="site-nav"><a href="/docs/">Docs</a><a href="/blog/">Blog</a></nav>
+</header>
+<main>
+  <h1>Getting started</h1>
+  <p>This guide takes you from an empty directory to a running database with data in it. It assumes a Linux or macOS host and does not require an account.</p>
+
+  <h2>1. Install</h2>
+  <p>Orbital ships as a single binary. There is no daemon to configure and no separate client.</p>
+  <pre><code class="language-bash">curl -fsSL https://get.example.com/orbital | sh
+orbital --version</code></pre>
+
+  <h2>2. Create a database file</h2>
+  <p>A database is one file. Point Orbital at a path that does not exist yet and it will create it.</p>
+  <pre><code class="language-bash">orbital init ./telemetry.odb --retention 30d</code></pre>
+
+  <h2>3. Write your first samples</h2>
+  <p>The write path accepts line-delimited samples, which makes it easy to pipe from an existing collector.</p>
+  <pre><code class="language-bash">orbital write ./telemetry.odb &lt;&lt;'EOF'
+temperature,site=north value=21.4 1758000000
+temperature,site=south value=23.9 1758000000
+EOF</code></pre>
+
+  <h2>4. Query it back</h2>
+  <p>Queries are plain SQL with duration literals. The engine only reads the partitions that overlap the time range.</p>
+  <pre><code class="language-sql">SELECT mean(value) FROM temperature WHERE time &gt; now() - 1h GROUP BY site;</code></pre>
+
+  <h2>Troubleshooting</h2>
+  <p>If the process exits with <code>EACCES</code>, the directory holding the database file is not writable by the current user. If writes are slow, check whether the storage medium is a network filesystem: Orbital requires a local disk for its append-only log.</p>
+
+  <h2>Next steps</h2>
+  <ul>
+    <li>Read <a href="/docs/guide/configuration.html">Configuration</a> to size the memory budget.</li>
+    <li>Read the <a href="/docs/api/reference.html">API reference</a> for the full query surface.</li>
+  </ul>
+</main>
+<footer class="site-footer"><p>&copy; 2026 Orbital Labs</p></footer>
+</body>
+</html>

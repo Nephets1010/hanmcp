@@ -1,0 +1,49 @@
+{
+  "name": "hanmcp",
+  "version": "0.1.0",
+  "description": "Turn any documentation site into a ready-to-use MCP server. One command, zero API keys, local-first.",
+  "type": "module",
+  "bin": {
+    "hanmcp": "./src/cli.js"
+  },
+  "files": [
+    "src",
+    "README.md",
+    "README.zh-CN.md",
+    "LICENSE",
+    "NOTICE",
+    "SECURITY.md",
+    "CHANGELOG.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test",
+    "syntax": "node scripts/syntax-check.js",
+    "demo": "node demo/run-demo.js",
+    "verify:readme": "node scripts/verify-readme-demo.js",
+    "check": "npm run syntax && npm test && npm run verify:readme"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "llms-txt",
+    "documentation",
+    "ai-agents",
+    "claude",
+    "cursor",
+    "chinese"
+  ],
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nephets1010/hanmcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Nephets1010/hanmcp/issues"
+  },
+  "homepage": "https://github.com/Nephets1010/hanmcp#readme",
+  "dependencies": {},
+  "devDependencies": {}
+}

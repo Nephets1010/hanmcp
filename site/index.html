@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>hanmcp</title>
+<meta name="description" content="Turn any documentation site into a working MCP server, in one command. Zero dependencies, no API keys, no embeddings, no cloud.">
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="/">hanmcp</a>
+  <nav class="site-nav">
+    <a href="/docs/">Docs</a>
+    <a href="/docs/zh/">中文</a>
+    <a href="https://github.com/Nephets1010/hanmcp">GitHub</a>
+  </nav>
+</header>
+<main>
+  <h1>hanmcp</h1>
+  <p>Turn any documentation site into a working MCP server, in one command. Zero dependencies, no API keys, no embeddings, no cloud.</p>
+
+  <pre><code>npx hanmcp https://docs.example.com/</code></pre>
+
+  <p><a href="/docs/">Read the documentation</a> · <a href="/docs/zh/">中文文档</a></p>
+
+  <h2>What it does</h2>
+  <p>hanmcp crawls a documentation site, converts every page to clean markdown, builds a dependency-free search index, and writes out a standalone MCP server that Claude, Cursor, or any other MCP client can connect to. The output is three files you can copy to another machine: <code>server.mjs</code>, <code>index.json</code> and <code>docs/</code>.</p>
+  <p>It is built Chinese-first. Retrieval works on Chinese, Japanese and Korean text without a dictionary or a segmentation model, and non-ASCII path segments stay readable as filenames.</p>
+</main>
+<footer class="site-footer">
+  <p>&copy; 2026 hanmcp contributors · <a href="https://github.com/Nephets1010/hanmcp/blob/main/LICENSE">Apache-2.0</a></p>
+</footer>
+</body>
+</html>

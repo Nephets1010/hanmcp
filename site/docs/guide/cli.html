@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Command line reference · hanmcp Docs</title>
+<meta name="description" content="Every hanmcp flag with its default, plus the crawl scope rule and the safety rules around the output directory.">
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+<body>
+<header class="site-header">
+  <nav class="site-nav"><a href="/docs/">Docs</a><a href="/docs/zh/">中文</a></nav>
+</header>
+<main>
+  <h1>Command line reference</h1>
+  <p>The interface is three subcommands and a short list of flags. Everything has a default that is safe to run against somebody else's site, so the common case needs no configuration at all.</p>
+
+  <h2>Commands</h2>
+  <pre><code>hanmcp &lt;url&gt; [options]        crawl a documentation site and build the server
+hanmcp serve [dir]            run the generated server over stdio
+hanmcp help | version</code></pre>
+
+  <h2>Flags</h2>
+  <ul>
+    <li><code>--out &lt;dir&gt;</code> — output directory. Defaults to <code>mcp-docs</code>.</li>
+    <li><code>--max-pages &lt;n&gt;</code> — hard ceiling on pages fetched. Defaults to 50, which covers most product documentation sites.</li>
+    <li><code>--max-depth &lt;n&gt;</code> — link depth from the entry URL. Defaults to 2.</li>
+    <li><code>--name &lt;name&gt;</code> — server name registered with the MCP client. Defaults to the site title.</li>
+    <li><code>--delay &lt;ms&gt;</code> — pause between requests. Defaults to 120 milliseconds.</li>
+    <li><code>--no-robots</code> — skip the robots.txt check. Off by default, and you should have a reason.</li>
+    <li><code>--force</code> — overwrite the output directory even if hanmcp did not create it.</li>
+    <li><code>--quiet</code> — print only the final summary. Use this in CI.</li>
+  </ul>
+
+  <h2>The scope rule</h2>
+  <p>This is the one behaviour that surprises people, so it is worth stating precisely. The trailing slash decides the crawl scope. Given <code>/docs/</code> the entire subtree is in scope, so every page underneath it is eligible. Given <code>/docs/v2/start.html</code> with no trailing slash, only the containing directory is in scope. The rule exists so that pointing at a single page to try the tool out does not silently drag in an entire website.</p>
+
+  <h2>The safety rule</h2>
+  <p>hanmcp refuses two output directories outright: a filesystem root, and your current working directory. It also refuses to delete a directory it did not create unless you pass <code>--force</code>. Ownership is recorded by a marker file written the moment the directory is created, not at the end of the build, so an interrupted or failed build leaves a directory that a later run can still safely reuse. Deleting somebody's folder because they mistyped <code>--out</code> is not an acceptable failure mode.</p>
+
+  <h2>Crawler politeness</h2>
+  <p>Requests identify themselves honestly as hanmcp. robots.txt is fetched and honoured before the first page request, a <code>Crawl-delay</code> directive overrides the default delay, and non-HTML responses are dropped rather than indexed as empty pages. Cross-origin links are never followed.</p>
+
+  <h2>Related</h2>
+  <ul>
+    <li><a href="/docs/guide/how-it-works.html">How it works</a></li>
+    <li><a href="/docs/guide/cjk.html">CJK support</a></li>
+  </ul>
+</main>
+<footer class="site-footer"><p>&copy; 2026 hanmcp contributors</p></footer>
+</body>
+</html>
