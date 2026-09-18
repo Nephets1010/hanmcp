@@ -39,7 +39,7 @@ working.
 
 ## Checklist
 
-- [ ] `npm run check` passes locally (syntax gate + full test suite)
+- [ ] `npm run check` passes locally (syntax gate, tests, documentation and package checks)
 - [ ] New behaviour is covered by a test that fails without this change
 - [ ] `package.json` still has empty `dependencies` and `devDependencies`
 - [ ] JSDoc added or updated on every exported function I touched

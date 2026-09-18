@@ -31,8 +31,8 @@ hanmcp 0.1.0  documentation -> MCP
   done in 1.0s
   pages   6
   chunks  37
-  terms   1,346
-  index   65.7 KB
+  terms   1,363
+  index   66.5 KB
   server  17.3 KB
 
   files    docs/, llms.txt, llms-full.txt, index.json, server.mjs
@@ -46,7 +46,7 @@ Then an AI client asks something, in Chinese:
   1. 中文文档 · hanmcp — 索引内存占用怎么估算
      source: http://127.0.0.1:8904/docs/zh
      path: zh.md
-     score: 39.2151
+     score: 39.4518
 
   ## 索引内存占用怎么估算
 
@@ -150,13 +150,15 @@ Node.js 20 or newer. Nothing else — `hanmcp` has zero runtime dependencies, an
 ## Development
 
 ```bash
-npm run check            # syntax gate + full test suite + documentation check
+npm run check            # syntax gate + tests + documentation + published-package checks
 npm test                 # the test suite only
 npm run demo             # crawl hanmcp's own docs end to end, paced for recording
 node demo/run-demo.js    # the same run without the holds, about 2s instead of 27
 ```
 
 The test suite needs no network access: it serves a fixture documentation site on localhost and crawls that. The demo crawls the real docs in `site/` — the two are kept separate so editing the documentation never breaks a test.
+
+`npm run check` also packs the tarball `npm publish` would send, installs it into a scratch directory and drives it end to end, so a change that breaks the published package fails the build rather than the reader. It runs as `prepublishOnly` too.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for how to propose a change, and [SECURITY.md](SECURITY.md) for reporting vulnerabilities.
 

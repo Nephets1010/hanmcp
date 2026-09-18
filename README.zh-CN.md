@@ -26,8 +26,8 @@ hanmcp 0.1.0  documentation -> MCP
   done in 1.0s
   pages   6
   chunks  37
-  terms   1,346
-  index   65.7 KB
+  terms   1,363
+  index   66.5 KB
   server  17.3 KB
 
   files    docs/, llms.txt, llms-full.txt, index.json, server.mjs
@@ -41,7 +41,7 @@ hanmcp 0.1.0  documentation -> MCP
   1. 中文文档 · hanmcp — 索引内存占用怎么估算
      source: http://127.0.0.1:8904/docs/zh
      path: zh.md
-     score: 39.2151
+     score: 39.4518
 
   ## 索引内存占用怎么估算
 
@@ -145,13 +145,15 @@ Node.js 20 或更高版本，没有其他要求——`hanmcp` 没有任何运行
 ## 开发
 
 ```bash
-npm run check            # 语法门禁 + 完整测试 + 文档一致性检查
+npm run check            # 语法门禁 + 测试 + 文档一致性 + 发布产物检查
 npm test                 # 只跑测试，不需要联网
 npm run demo             # 针对 hanmcp 自己的文档站跑完整链路，带录屏停顿
 node demo/run-demo.js    # 同样内容但不停顿，约 2 秒（27 秒的是上面那条）
 ```
 
 测试套件不需要联网：它会在 localhost 起一个夹具文档站然后抓取它。演示抓的是 `site/` 下的真实文档——两者刻意分开，这样改文档永远不会弄挂测试。
+
+`npm run check` 还会把 `npm publish` 将要发出的那份 tarball 打进临时目录、装一遍、端到端跑一次。所以让「发布出去的包不可用」的改动会在构建阶段失败，而不是等到读者那里才失败。它同时挂在 `prepublishOnly` 上。
 
 提 PR 之前请看 [CONTRIBUTING.md](CONTRIBUTING.md)；安全问题请按 [SECURITY.md](SECURITY.md) 的方式反馈。
 

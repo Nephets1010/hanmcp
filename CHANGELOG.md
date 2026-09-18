@@ -4,6 +4,14 @@ All notable changes to this project are documented in this file.
 
 The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **`npm run verify:package`**, wired into `npm run check` and into `prepublishOnly`. It packs the tarball `npm publish` would send, installs it into a temporary consumer, runs the installed CLI against a real site, and drives the server it generates over the MCP wire protocol.
+
+  This is the only gate that asks whether the command the READMEs tell a stranger to run actually works. The others compare a document against a file, and both sides can agree with each other while the tool is unusable: `npx hanmcp` sat in `README.md` as the first line of Quick start while the package was unpublished, and every existing check passed. It also catches a `files` field that omits something the `bin` entry point imports — `npm pack` ships the entry point regardless, so the tarball looks complete and dies on the first `import`. It runs on all three CI platforms because npm builds the `bin` shim differently on each.
+
 ## [0.1.0]
 
 First release.

@@ -30,8 +30,9 @@ cd hanmcp
 npm run check</code></pre>
 
   <h2>Verify the install</h2>
-  <p>A working install crawls the bundled sample site end to end and talks to the server it generates. This is the same command continuous integration runs on every commit, so if it passes on your machine your environment matches the supported one exactly:</p>
+  <p>A working install crawls the bundled sample site end to end and talks to the server it generates:</p>
   <pre><code class="language-bash">npm run demo</code></pre>
+  <p><code>npm run check</code> runs the syntax gate, the test suite, and the documentation and package checks. The package check packs the exact tarball <code>npm publish</code> would send, installs it into a scratch directory, and drives the installed CLI end to end — so a package nobody could install fails the build instead of failing a reader's first command. Continuous integration runs these same checks on Linux, macOS and Windows, against Node 20 and 22.
 
   <h2>Common problems</h2>
   <ul>

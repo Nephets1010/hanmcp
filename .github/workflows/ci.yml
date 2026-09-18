@@ -68,6 +68,14 @@ jobs:
       - name: Documentation still matches the tool
         run: node scripts/verify-docs.js
 
+      # The checks above compare documents against files. This one asks the
+      # question none of them can: does the command the README tells a stranger
+      # to run actually work? It packs what `npm publish` would send, installs
+      # it into a clean consumer, and drives it end to end. It runs on every OS
+      # in the matrix because npm builds the `bin` shim differently on each one.
+      - name: The package the README tells people to install works
+        run: node scripts/verify-package.js
+
   portable-bundle:
     name: generated bundle runs with no repository present
     runs-on: ${{ matrix.os }}

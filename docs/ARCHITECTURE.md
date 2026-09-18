@@ -93,6 +93,7 @@ Page files are written as they are crawled; `manifest.json` last. An interrupted
 | stdout carries only JSON-RPC | `mcp-runtime.js` | `e2e.test.js` |
 | The bundle is genuinely self-contained | `bundle.js` | `scripts/verify-portable.js` |
 | The bundle parses as valid JavaScript | `bundle.js` | `scripts/syntax-check.js` |
+| The published package is usable by a stranger | `package.json` (`files`, `bin`) | `scripts/verify-package.js` |
 
 ## What is deliberately absent
 
@@ -104,16 +105,18 @@ Page files are written as they are crawled; `manifest.json` last. An interrupted
 
 ## Testing strategy
 
-The suite never touches the public internet. `demo/fixture-server.js` serves a static site on `localhost` and both the tests and the demo crawl through it.
+The suite never touches the public internet. `demo/fixture-server.js` serves a static site on `localhost` and every crawl — tests, demo, and the package check — goes through a local server.
 
 They deliberately crawl **different sites**:
 
 | Site | Used by | Why |
 | --- | --- | --- |
 | `demo/fixture/` | The test suite | Frozen. Tests stay green no matter how much the docs change. |
-| `site/` | The demo recording | Real documentation, so the recording shows real content. |
+| `site/` | The demo recording, and `scripts/verify-package.js` | Real documentation, so the recording shows real content — and so the package check exercises the content the READMEs quote. |
 
 Keeping them apart is what stops a documentation edit from breaking a test — and stops a test fixture from making the demo look synthetic.
+
+`scripts/verify-package.js` is the one check that does not compare a document against a file. It packs the tarball `npm publish` would send, installs it into a temporary consumer, and drives the installed CLI and the server it generates over the real MCP wire protocol. It is also the only reason anyone would know that `npm pack` ships the `bin` entry point even when `files` omits everything that entry point imports: the tarball looks complete and dies on the first `import`. It runs on all three platforms because npm builds the `bin` shim differently on each.
 
 ```
 test/tokenizer.test.js   term extraction, CJK bigrams

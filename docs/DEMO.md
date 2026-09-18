@@ -92,8 +92,8 @@ About 29 seconds on the GIF's clock — a little over a second of typing, then 2
 - **On screen:** the stats block.
   ```
   done in 1.1s
-  6 pages  ->  37 passages  ->  1346 terms
-  index.json 65.7 KB   server.mjs 17.3 KB
+  6 pages  ->  37 passages  ->  1363 terms
+  index.json 66.5 KB   server.mjs 17.3 KB
   ```
 - **Caption:** *6 pages → one MCP server in 1 second*
 - **Why it works:** three numbers carry the whole value proposition — small, fast, self-contained. Do not cut away early; the hold is about three and a half seconds for exactly that reason.

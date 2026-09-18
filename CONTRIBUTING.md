@@ -28,10 +28,25 @@ Run the suite:
 npm test                 # the test suite, no network required
 npm run demo             # crawl hanmcp's own docs end to end, paced for recording
 node demo/run-demo.js    # the same run without the pacing holds
-npm run check            # syntax gate + tests + documentation check; this is what CI runs
+npm run check            # every gate below, in one command
 ```
 
 The suite never touches the public internet. It serves a frozen fixture site on `localhost` (`demo/fixture/`) and crawls that, so tests are fast and deterministic. The demo crawls the real docs in `site/` instead — keep the two apart and a documentation edit will never break a test.
+
+## What the gates catch
+
+Four scripts, four different ways this project has actually been broken. Each one exists because something got through without it.
+
+| Command | Catches |
+| --- | --- |
+| `npm run syntax` | Source that parses fine on its own but breaks once inlined into the generated `server.mjs`. |
+| `npm test` | Ordinary behaviour regressions. |
+| `npm run verify:docs` | Documents that stopped matching the tool: demo numbers, an undocumented flag, a quoted tape that drifted from the tape, a recording path that lost its pacing. |
+| `npm run verify:package` | The package a stranger receives being broken. It packs what `npm publish` would send, installs it into a temp consumer and drives it end to end. |
+
+`verify:package` is the one to understand, because it is the only gate that asks whether the *command in the README actually runs*. Everything else compares a document to a file, and both sides can agree with each other while the tool is unusable — the package sat unpublished for a while with `npx hanmcp` as the README's first line, and every other check passed. It also catches things a file listing cannot: `npm pack` will ship the `bin` entry point even when the `files` field omits everything it imports, so the tarball looks plausible and fails on the first `import`.
+
+`npm run check` also runs as `prepublishOnly`, so a broken package cannot be published.
 
 ## Code conventions
 
