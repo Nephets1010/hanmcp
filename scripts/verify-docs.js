@@ -25,8 +25,13 @@
  *    reader to run a script that had been renamed, a tape whose hold was four
  *    times longer than the output it was holding on.
  *
- * All three sets of facts are deterministic — same content in, same numbers,
- * same flag list, same bytes — which is exactly why they can be asserted.
+ * 4. THE RECORDING PATH. The GIF is recorded by typing `npm run demo`, which
+ *    passes `--pace`. Drop that flag and the recording silently reverts to the
+ *    unpaced run it was added to replace.
+ *
+ * All four sets of facts are deterministic — same content in, same numbers,
+ * same flag list, same bytes, same scripts — which is exactly why they can be
+ * asserted.
  *
  * Deliberately not checked: the `done in ...` line. It is wall-clock time and
  * moves on every machine; the READMEs' claim is "fast", not a specific
@@ -176,9 +181,30 @@ function checkTapeMatches() {
   }
 }
 
+/**
+ * The recorded GIF is made by typing `npm run demo` into a terminal. If that
+ * script ever stops passing `--pace`, every hold disappears and the GIF is
+ * recorded from a two-second run — which is precisely the failure the pacing
+ * was added to fix, and precisely the kind that nothing else would notice.
+ * The wiring is one substring in package.json, so it is worth one assertion.
+ */
+function checkRecordingIsPaced() {
+  const pkg = JSON.parse(readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
+  const demo = pkg.scripts?.demo ?? '';
+  if (!demo.includes('--pace')) {
+    fail(`package.json: \`demo\` no longer passes --pace, so the recording would be unpaced ("${demo}")`);
+  }
+
+  const tape = readFileSync(path.join(ROOT, 'docs', 'demo.tape'), 'utf8');
+  if (!/^Type "npm run demo"$/m.test(tape)) {
+    fail('docs/demo.tape: does not type `npm run demo`, the paced entry point');
+  }
+}
+
 async function main() {
   checkFlagsAreDocumented();
   checkTapeMatches();
+  checkRecordingIsPaced();
 
   const out = mkdtempSync(path.join(tmpdir(), 'hanmcp-readme-'));
   const site = await startSiteServer({ port: PORT });
@@ -295,6 +321,7 @@ async function main() {
 
   process.stdout.write(
     `docs ok: ${acceptedFlags().length} flags documented everywhere; tape matches docs/demo.tape; ` +
+      `recording path paced; ` +
       `${actual.pages} pages, ${actual.chunks} passages, ${actual.terms} terms, ` +
       `index ${actual.index}, score ${actual.score} — all match\n`,
   );
