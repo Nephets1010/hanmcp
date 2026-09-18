@@ -73,7 +73,7 @@ test('version prints a bare semver and exits 0', async () => {
 test('help exits 0 and documents every documented flag', async () => {
   const { code, stdout } = await runCli(['help']);
   assert.equal(code, 0);
-  for (const flag of ['--out', '--max-pages', '--max-depth', '--name', '--delay', '--no-robots', '--force', '--quiet']) {
+  for (const flag of ['--out', '--max-pages', '--max-depth', '--name', '--delay', '--timeout', '--no-robots', '--force', '--quiet']) {
     assert.ok(stdout.includes(flag), `help text is missing ${flag}`);
   }
 });
@@ -140,4 +140,33 @@ test('an unreachable url fails with the page-ceiling hint', async () => {
   const { code, stderr } = await runCli(['http://127.0.0.1:1/docs/', '--out', outDir, '--quiet']);
   assert.equal(code, 1);
   assert.ok(stderr.includes('no readable pages found'), `stderr was: ${stderr}`);
+});
+
+test('--timeout reaches the crawler instead of being a dead flag', async () => {
+  // `--timeout` was accepted by the parser but never passed down, so raising it
+  // for a slow host silently did nothing. A ceiling of 0 aborts every page
+  // request immediately — this can only fail if the value actually gets through
+  // and the crawl gives up. With the 15s default the fixtures would be fetched
+  // comfortably and the build would succeed.
+  const fixture = await startFixtureServer();
+  const outDir = path.join(mkdtempSync(path.join(tmpdir(), 'hanmcp-cli-timeout-')), 'out');
+  try {
+    const { code, stderr } = await runCli([
+      `${fixture.origin}/docs/`,
+      '--out', outDir,
+      '--quiet',
+      '--timeout', '0',
+    ]);
+    assert.equal(code, 1, 'a 0ms timeout should make every page request give up');
+    assert.ok(stderr.includes('no readable pages found'), `stderr was: ${stderr}`);
+  } finally {
+    await fixture.close();
+    rmSync(outDir, { recursive: true, force: true });
+  }
+});
+
+test('a negative --timeout is rejected rather than silently ignored', async () => {
+  const { code, stderr } = await runCli(['https://a.com/docs/', '--timeout', '-1']);
+  assert.equal(code, 1);
+  assert.ok(stderr.includes('--timeout must be a non-negative integer'), `stderr was: ${stderr}`);
 });

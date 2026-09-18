@@ -26,6 +26,7 @@ hanmcp help | version</code></pre>
     <li><code>--max-depth &lt;n&gt;</code> — link depth from the entry URL. Defaults to 2.</li>
     <li><code>--name &lt;name&gt;</code> — server name registered with the MCP client. Defaults to the site title.</li>
     <li><code>--delay &lt;ms&gt;</code> — pause between requests. Defaults to 120 milliseconds.</li>
+    <li><code>--timeout &lt;ms&gt;</code> — give up on a single request after this long. Defaults to 15000. Raise it for a slow intranet host, or lower it to fail fast.</li>
     <li><code>--no-robots</code> — skip the robots.txt check. Off by default, and you should have a reason.</li>
     <li><code>--force</code> — overwrite the output directory even if hanmcp did not create it.</li>
     <li><code>--quiet</code> — print only the final summary. Use this in CI.</li>

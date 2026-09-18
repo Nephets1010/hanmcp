@@ -31,6 +31,7 @@ options
   --max-depth <n>      link depth from the entry URL (default: 2)
   --name <name>        server name (default: derived from the site title)
   --delay <ms>         pause between requests (default: 120)
+  --timeout <ms>       give up on a single request after this long (default: 15000)
   --no-robots          skip the robots.txt check
   --force              overwrite --out even if hanmcp did not create it
   --quiet              only print the final summary
@@ -113,6 +114,7 @@ async function runBuild(flags, url) {
   const maxPages = numberFlag(flags, '--max-pages', 50);
   const maxDepth = numberFlag(flags, '--max-depth', 2);
   const delay = numberFlag(flags, '--delay', 120);
+  const timeout = numberFlag(flags, '--timeout', 15000);
 
   if (!quiet) {
     print([
@@ -134,6 +136,7 @@ async function runBuild(flags, url) {
     maxPages,
     maxDepth,
     delayMs: delay,
+    timeoutMs: timeout,
     force: flags['--force'] === true,
     respectRobots: flags['--no-robots'] !== true,
     name: typeof flags['--name'] === 'string' ? flags['--name'] : undefined,

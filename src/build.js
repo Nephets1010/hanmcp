@@ -106,6 +106,7 @@ function deriveName(pages, sourceUrl) {
  * @param {string} [options.name]
  * @param {boolean} [options.respectRobots]
  * @param {number} [options.delayMs]
+ * @param {number} [options.timeoutMs] per-request ceiling while crawling
  * @param {boolean} [options.force]
  * @param {(page: number, url: string, title: string) => void} [options.onPage]
  * @param {(message: string) => void} [options.onSkip]
@@ -120,6 +121,7 @@ export async function buildProject(options) {
     maxDepth: options.maxDepth,
     respectRobots: options.respectRobots,
     delayMs: options.delayMs,
+    timeoutMs: options.timeoutMs,
     onPage: options.onPage,
     onSkip: options.onSkip,
   });

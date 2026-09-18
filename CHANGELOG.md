@@ -6,6 +6,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
+### Fixed
+
+- `--timeout <ms>` was accepted by the argument parser but never passed down to the crawler, so it silently did nothing and every request kept the 15-second default — a user raising it for a slow host got no effect and no warning. It now reaches the crawler, appears in `--help` and on the CLI reference page, and is covered by tests at both the "help lists it" and "it actually changes behaviour" levels.
+- The documented demo output in `README.md`, `README.zh-CN.md` and `docs/DEMO.md` had drifted (stale port, stale term count, stale BM25 score) and was a splice of two different sources. It is now the real output of `npx hanmcp`, and `npm run verify:readme` fails the build if any of those numbers stop matching reality.
+
 ## [0.1.0]
 
 First release.
@@ -23,7 +28,7 @@ First release.
 - **Output-directory safety** — refuses a filesystem root or the current working directory, refuses to clear a directory it did not create without `--force`, and claims ownership on creation so a failed build stays retryable.
 - **Path-traversal refusal** in the generated server's `get_doc` tool.
 - Bilingual documentation: [README.md](README.md) and [README.zh-CN.md](README.zh-CN.md).
-- A fixture documentation site (`demo/fixture/`) that powers `npm run demo`, the end-to-end test suite and the portability check — so the tests never touch the public internet.
+- **Two documentation sites, deliberately kept apart.** `demo/fixture/` is a frozen sample site that powers the end-to-end test suite and the portability check, so editing the real docs never breaks a test. `site/` is hanmcp's own documentation and is what `npm run demo` crawls — the demo runs against the thing it documents.
 
 ### Known limitations
 

@@ -26,8 +26,8 @@ hanmcp 0.1.0  documentation -> MCP
   done in 0.8s
   pages   6
   chunks  37
-  terms   1,334
-  index   65.3 KB
+  terms   1,346
+  index   65.7 KB
   server  17.3 KB
 
   files    docs/, llms.txt, llms-full.txt, index.json, server.mjs
@@ -41,7 +41,7 @@ Then an AI client asks something, in Chinese:
   1. 中文文档 · hanmcp — 索引内存占用怎么估算
      source: http://127.0.0.1:8904/docs/zh
      path: zh.md
-     score: 39.102
+     score: 39.2151
 
   ## 索引内存占用怎么估算
 
