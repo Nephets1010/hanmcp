@@ -11,7 +11,7 @@ In order of importance:
 1. **It is one command.** No install step, no config file, no API key prompt.
 2. **It works on Chinese.** A Chinese query returns real Chinese content. Every competing tool fails here, and this is the differentiator that reads clearly on screen.
 3. **The output is an actual MCP server,** not a folder of markdown — an AI client connects and gets an answer.
-4. **It is fast and local.** "done in 1.1s" and "no API key, no embeddings, no cloud" are both on screen.
+4. **It is fast and local.** The summary's `done in` reading and "no API key, no embeddings, no cloud" are both on screen. The reading is wall-clock and differs between takes; the claim it carries is the one that has to land.
 
 What the demo deliberately does **not** try to show: configuration flags, the index format, error handling, or the repository layout. A 30-second asset that shows ten things leaves no memory of any of them.
 
@@ -91,7 +91,7 @@ About 29 seconds on the GIF's clock — a little over a second of typing, then 2
 
 - **On screen:** the stats block.
   ```
-  done in 1.1s
+  done in 0.9s
   6 pages  ->  37 passages  ->  1363 terms
   index.json 66.5 KB   server.mjs 17.3 KB
   ```

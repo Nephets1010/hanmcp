@@ -238,20 +238,39 @@ frames.push({ at: totalMs, lines: [...screen], styles: [...styles] });
 // here came out at 33.8s for exactly that reason. It looked fine. Nothing said
 // anything. That is the failure this check exists for: re-run on a quiet
 // machine rather than publish something over its own stated ceiling.
+//
+// The sum checked is the one the encoder will actually write, not the timeline
+// above it. Every delay is quantised onto GIF's centisecond grid and floored at
+// MIN_FRAME_MS, and both operations only ever move a delay outward, so the
+// encoded GIF runs slightly longer than the frames it was built from — this
+// recording plans 28.48s and encodes 28.78s. Checking the plan would let a
+// 29.9s take pass a 30s ceiling and still ship a GIF over it, which is the same
+// class of mistake as the 33.8s take: the artifact does not match the claim.
+//
+// MIN_FRAME_MS is the other half of that quantisation. GIF delays are
+// centiseconds, and viewers clamp anything under 20ms up to 100ms; flooring at
+// 40ms keeps the timeline honest instead of letting a viewer invent one.
+const delays = frames.map((frame, i) => {
+  const next = frames[i + 1]?.at ?? totalMs;
+  return Math.max(MIN_FRAME_MS, Math.round((next - frame.at) / 10) * 10);
+});
+const encodedMs = delays.reduce((sum, ms) => sum + ms, 0);
+
 const CEILING_MS = 30000;
-if (totalMs > CEILING_MS) {
-  const cameOut = (totalMs / 1000).toFixed(1);
+if (encodedMs > CEILING_MS) {
+  const cameOut = (encodedMs / 1000).toFixed(2);
+  const planned = (totalMs / 1000).toFixed(2);
   const paced = (elapsed / 1000).toFixed(1);
   throw new Error(
-    `the recording came out ${cameOut}s, over the ${CEILING_MS / 1000}s ceiling in docs/DEMO.md.\n` +
-      `The paced run took ${paced}s, and its fixed holds only account for 24.1s — ` +
-      'so the machine was busy while it ran.\n' +
+    `the recording encodes to ${cameOut}s, over the ${CEILING_MS / 1000}s ceiling in docs/DEMO.md.\n` +
+      `Its timeline planned ${planned}s, and the paced run itself took ${paced}s, whose fixed holds ` +
+      'only account for 24.1s — so the machine was busy while it ran.\n' +
       'Close what is running and record again; the output is fine, the timing is not.',
   );
 }
 
 const scrolls = Math.max(0, screen.length - ROWS);
-console.log(`frames    ${frames.length} over ${(totalMs / 1000).toFixed(2)}s`);
+console.log(`frames    ${frames.length} over ${(encodedMs / 1000).toFixed(2)}s encoded`);
 console.log(`content   ${screen.length} wrapped lines, ${ROWS} visible (scrolls by ${scrolls})`);
 
 // The shot the whole recording exists for has to survive the scroll. If an edit
@@ -371,11 +390,10 @@ async function writeVideoFrames(delay) {
 }
 
 for (let i = 0; i < frames.length; i += 1) {
-  const next = frames[i + 1]?.at ?? totalMs;
-  // GIF delays are centiseconds, and viewers clamp anything under 20ms up to
-  // 100ms. The floor keeps the timeline honest instead of letting a viewer
-  // invent one.
-  const delay = Math.max(MIN_FRAME_MS, Math.round((next - frames[i].at) / 10) * 10);
+  // The delays were computed and checked above, before anything was written,
+  // because the ceiling has to reject the take before the encoder truncates the
+  // file that is already there.
+  const delay = delays[i];
   drawFrame(frames[i]);
   encoder.setDelay(delay);
   encoder.addFrame(ctx);
