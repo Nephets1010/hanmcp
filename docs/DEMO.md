@@ -203,9 +203,11 @@ Small things that visibly change how professional the result reads:
 
 ## Checklist before publishing
 
-- [ ] Total length is 30 seconds or under, and the whole thing loops without an obvious seam.
-- [ ] The Chinese text renders in a font with real CJK glyphs — no tofu boxes, no fallback typeface.
-- [ ] The GIF is under 10 MB so GitHub inlines it, and it autoplays in the README.
-- [ ] `docs/demo.gif` and `docs/demo.mp4` are committed, and the `<!-- ... -->` placeholder comment is removed from `README.md` **and** `README.zh-CN.md`.
-- [ ] The recording matches the current `npm run demo` output — re-record if the CLI output changed.
-- [ ] No file paths, hostnames, or usernames from a personal machine are visible.
+- [x] Total length is 30 seconds or under, and the whole thing loops without an obvious seam.
+- [x] The Chinese text renders in a font with real CJK glyphs — no tofu boxes, no fallback typeface.
+- [x] The GIF is under 10 MB so GitHub inlines it, and it autoplays in the README.
+- [x] `docs/demo.gif` and `docs/demo.mp4` are committed, and the `<!-- ... -->` placeholder comment is removed from `README.md` **and** `README.zh-CN.md`.
+- [x] The recording matches the current `npm run demo` output — re-record if the CLI output changed.
+- [x] No file paths, hostnames, or usernames from a personal machine are visible.
+
+The first three are asserted by `demo/record-gif.mjs` rather than left to the eye: the 30-second ceiling and the 10 MB ceiling both fail the recording, and so does an edit that pushes the Chinese answer off the top of the screen. The other three are judgement calls — the font one in particular, because a missing glyph is not an error in canvas, `measureText` still reports a plausible width, and the only way to catch it is to look at the pixels. Re-record (and re-tick) after any change to the CLI's output.

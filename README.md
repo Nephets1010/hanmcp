@@ -63,7 +63,7 @@ npm run demo
 
 Note what the Chinese query returned: the **section** whose title matches, not the top of the page. Sections are indexed as separate passages, which is what makes a query on a section title land on that section.
 
-<!-- Recorded GIF goes here before launch: docs/demo.gif (see docs/DEMO.md for the storyboard). -->
+![hanmcp crawling its own documentation site and answering a Chinese query — 6 pages in under a second, no API key](docs/demo.gif)
 
 ## Quick start
 
